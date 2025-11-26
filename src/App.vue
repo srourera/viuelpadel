@@ -2,6 +2,8 @@
 import { RouterView } from "vue-router";
 import AdminLogin from "./components/AdminLogin.vue";
 import AdminLoading from "./components/AdminLoading.vue";
+import Sidebar from "./components/Sidebar.vue";
+import TopBar from "./components/TopBar.vue";
 import AuthService from "./services/AuthService";
 
 export default {
@@ -10,6 +12,8 @@ export default {
     RouterView,
     AdminLogin,
     AdminLoading,
+    Sidebar,
+    TopBar,
   },
   data() {
     return {
@@ -37,9 +41,13 @@ export default {
     </template>
     <template v-else>
       <AdminLogin v-if="!isAuthenticated" />
-      <main v-else>
-        <RouterView />
-      </main>
+      <div v-else class="app-layout">
+        <Sidebar />
+        <TopBar />
+        <main class="main-content">
+          <RouterView />
+        </main>
+      </div>
     </template>
   </div>
 </template>
@@ -58,5 +66,19 @@ body {
 #app {
   width: 100%;
   min-height: 100vh;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 200px;
+  margin-top: 70px;
+  flex: 1;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: calc(100vh - 70px);
 }
 </style>
