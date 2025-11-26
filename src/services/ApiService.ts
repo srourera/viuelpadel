@@ -1,10 +1,34 @@
 import AuthService from "./AuthService";
+import type { IClientList, IClient } from "@/interfaces/Client";
+import type { IInvoiceList } from "@/interfaces/Invoice";
 
 class ApiService {
   private readonly BASE_URL = "https://n8n.ridaflows.com/webhook";
 
   public async checkAuth(): Promise<boolean> {
     return await this.request<boolean>("/viuelpadel/check-auth", {
+      method: "GET",
+    });
+  }
+
+  public async getClients(): Promise<IClientList> {
+    return await this.request<IClientList>("/viuelpadel/clients", {
+      method: "GET",
+    });
+  }
+
+  public async getClient(clientName: string): Promise<IClient> {
+    const encodedClientName = encodeURIComponent(clientName);
+    return await this.request<IClient>(
+      `/viuelpadel/client?client=${encodedClientName}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async getInvoices(): Promise<IInvoiceList> {
+    return await this.request<IInvoiceList>("/viuelpadel/invoices", {
       method: "GET",
     });
   }

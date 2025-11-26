@@ -19,16 +19,29 @@ export default {
     return {
       loadingAuth: true,
       isAuthenticated: false,
+      isSidebarCollapsed: false,
     };
   },
   async mounted() {
     await this.checkAuth();
+    this.checkScreenSize();
+    window.addEventListener("resize", this.checkScreenSize);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
     async checkAuth() {
       this.loadingAuth = true;
       this.isAuthenticated = await AuthService.isAuthenticated();
       this.loadingAuth = false;
+    },
+    checkScreenSize() {
+      if (window.innerWidth <= 768) {
+        this.isSidebarCollapsed = true;
+      } else {
+        this.isSidebarCollapsed = false;
+      }
     },
   },
 };
@@ -42,9 +55,12 @@ export default {
     <template v-else>
       <AdminLogin v-if="!isAuthenticated" />
       <div v-else class="app-layout">
-        <Sidebar />
-        <TopBar />
-        <main class="main-content">
+        <Sidebar :is-collapsed="isSidebarCollapsed" />
+        <TopBar :is-sidebar-collapsed="isSidebarCollapsed" />
+        <main
+          class="main-content"
+          :class="{ 'sidebar-collapsed': isSidebarCollapsed }"
+        >
           <RouterView />
         </main>
       </div>
@@ -80,5 +96,25 @@ body {
   padding: 2rem;
   background-color: #f9f9f9;
   min-height: calc(100vh - 70px);
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 60px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 60px;
+    padding: 1rem;
+  }
+
+  .main-content.sidebar-collapsed {
+    margin-left: 60px;
+  }
 }
 </style>

@@ -3,6 +3,12 @@ import AuthService from "../services/AuthService";
 
 export default {
   name: "TopBar",
+  props: {
+    isSidebarCollapsed: {
+      type: Boolean,
+      default: false,
+    },
+  },
   methods: {
     handleLogout() {
       AuthService.logout();
@@ -12,7 +18,7 @@ export default {
 </script>
 
 <template>
-  <header class="topbar">
+  <header class="topbar" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
     <div class="topbar-content">
       <div class="topbar-left">
         <h1 class="topbar-title">Panel de Administración</h1>
@@ -40,6 +46,11 @@ export default {
   align-items: center;
   z-index: 99;
   font-family: "Signika", sans-serif;
+  transition: left 0.3s ease;
+}
+
+.topbar.sidebar-collapsed {
+  left: 60px;
 }
 
 .topbar-content {
@@ -53,6 +64,28 @@ export default {
 .topbar-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+  color: #666666;
+}
+
+.menu-toggle:hover {
+  background-color: #f5f5f5;
+  border-color: #cddc39;
+  color: #292929;
 }
 
 .topbar-title {
@@ -95,5 +128,31 @@ export default {
 
 .logout-text {
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    left: 60px;
+  }
+
+  .topbar.sidebar-collapsed {
+    left: 60px;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .topbar-content {
+    padding: 0 1rem;
+  }
+
+  .topbar-title {
+    font-size: 1rem;
+  }
+
+  .logout-text {
+    display: none;
+  }
 }
 </style>
