@@ -12,3 +12,14 @@ export interface IInvoice {
   Link: string;
 }
 
+export interface IManualInvoicePayload {
+  Client: string;
+  "Import (IVA inclòs)": number;
+  Concepte: string;
+  "Mètode pagament": string;
+  Venciment: string;
+}
+
+export interface ILastInvoiceNumber {
+  lastInvoiceNumber: number;
+}

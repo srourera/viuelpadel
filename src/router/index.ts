@@ -3,6 +3,7 @@ import HomeView from "@/views/HomeView.vue";
 import ClientsView from "@/views/ClientsView.vue";
 import ClientView from "@/views/ClientView.vue";
 import InvoicesView from "@/views/InvoicesView.vue";
+import ManualInvoiceView from "@/views/ManualInvoiceView.vue";
 import ResponsableView from "@/views/ResponsableView.vue";
 import RemesasView from "@/views/RemesasView.vue";
 import RemesaEscolaViuElPadelView from "@/views/RemesaEscolaViuElPadelView.vue";
@@ -29,6 +30,11 @@ const router = createRouter({
       path: "/invoices",
       name: "invoices",
       component: InvoicesView,
+    },
+    {
+      path: "/invoices/manual",
+      name: "manual-invoice",
+      component: ManualInvoiceView,
     },
     {
       path: "/responsable/:responsableName",

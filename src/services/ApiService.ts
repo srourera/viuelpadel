@@ -1,6 +1,10 @@
 import AuthService from "./AuthService";
 import type { IClientList, IClient } from "@/interfaces/Client";
-import type { IInvoiceList } from "@/interfaces/Invoice";
+import type {
+  IInvoiceList,
+  IManualInvoicePayload,
+  ILastInvoiceNumber,
+} from "@/interfaces/Invoice";
 
 class ApiService {
   private readonly BASE_URL = "https://n8n.ridaflows.com/webhook";
@@ -34,14 +38,36 @@ class ApiService {
     });
   }
 
+  public async getLastInvoiceNumber(): Promise<ILastInvoiceNumber> {
+    return await this.request<ILastInvoiceNumber>(
+      "/viuelpadel/last-invoice-number",
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async createManualInvoice(
+    payload: IManualInvoicePayload
+  ): Promise<unknown> {
+    return await this.request<unknown>(
+      "/viuelpadel/invoices/new-manual-invoice",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+  }
+
   public clearCache(): void {
     this.cache.clear();
   }
 
-  private getCacheKey(endpoint: string, options: RequestInit): string {
-    const method = options.method || "GET";
-    const body = options.body ? JSON.stringify(options.body) : "";
-    return `${method}:${endpoint}:${body}`;
+  private getCacheKey(endpoint: string): string {
+    return endpoint;
   }
 
   private async request<T>(
@@ -50,7 +76,7 @@ class ApiService {
   ): Promise<T> {
     try {
       const method = options.method || "GET";
-      const cacheKey = this.getCacheKey(endpoint, options);
+      const cacheKey = this.getCacheKey(endpoint);
 
       // Solo cachear peticiones GET
       if (method === "GET" && this.cache.has(cacheKey)) {
