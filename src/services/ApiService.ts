@@ -4,6 +4,7 @@ import type { IInvoiceList } from "@/interfaces/Invoice";
 
 class ApiService {
   private readonly BASE_URL = "https://n8n.ridaflows.com/webhook";
+  private cache: Map<string, unknown> = new Map();
 
   public async checkAuth(): Promise<boolean> {
     return await this.request<boolean>("/viuelpadel/check-auth", {
@@ -33,11 +34,29 @@ class ApiService {
     });
   }
 
+  public clearCache(): void {
+    this.cache.clear();
+  }
+
+  private getCacheKey(endpoint: string, options: RequestInit): string {
+    const method = options.method || "GET";
+    const body = options.body ? JSON.stringify(options.body) : "";
+    return `${method}:${endpoint}:${body}`;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     try {
+      const method = options.method || "GET";
+      const cacheKey = this.getCacheKey(endpoint, options);
+
+      // Solo cachear peticiones GET
+      if (method === "GET" && this.cache.has(cacheKey)) {
+        return this.cache.get(cacheKey) as T;
+      }
+
       const adminKey = AuthService.getAdminKey();
       if (!adminKey) throw new Error("Admin key not found");
 
@@ -54,6 +73,12 @@ class ApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+
+      // Guardar en caché solo si es GET
+      if (method === "GET") {
+        this.cache.set(cacheKey, data);
+      }
+
       return data as T;
     } catch (error) {
       console.error(`Error in API request to ${endpoint}:`, error);
