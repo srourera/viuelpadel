@@ -1,6 +1,11 @@
 import AuthService from "./AuthService";
+import APIUtils from "./APIUtils";
 import type { IClientList, IClient } from "@/interfaces/Client";
-import type { IInvoiceList } from "@/interfaces/Invoice";
+import type {
+  IInvoiceList,
+  IInvoiceFilters,
+  IInvoice,
+} from "@/interfaces/Invoice";
 
 class ApiService {
   private readonly BASE_URL = "https://n8n.ridaflows.com/webhook";
@@ -27,10 +32,61 @@ class ApiService {
     );
   }
 
-  public async getInvoices(): Promise<IInvoiceList> {
-    return await this.request<IInvoiceList>("/viuelpadel/invoices", {
+  /**
+   * Obtiene las facturas del backend.
+   * Por ahora los filtros se ignoran en la petición HTTP, pero se pasan para preparar
+   * la migración futura al backend. El filtrado se hace en frontend con APIUtils.
+   *
+   * @param filters - Filtros opcionales (por ahora se ignoran en la petición)
+   * @returns Lista de facturas filtradas
+   */
+  public async getInvoices(filters?: IInvoiceFilters): Promise<IInvoiceList> {
+    // TODO: Cuando el backend soporte filtros, pasarlos como query params
+    // Por ahora se ignoran y se hace la petición sin filtros
+    console.log("getInvoices", filters);
+    const response = await this.request<IInvoiceList>("/viuelpadel/invoices", {
       method: "GET",
     });
+
+    // Por ahora, aplicar filtrado en frontend con APIUtils
+    // En el futuro, cuando el backend soporte filtros, esto se eliminará
+    if (filters) {
+      return {
+        invoices: APIUtils.filterInvoices(response.invoices, filters),
+      };
+    }
+
+    return response;
+  }
+
+  /**
+   * Filtra facturas localmente (sin hacer petición HTTP).
+   * Útil cuando las facturas ya están cargadas y solo necesitas filtrarlas.
+   *
+   * @param invoices - Lista de facturas a filtrar
+   * @param filters - Filtros a aplicar
+   * @returns Lista de facturas filtradas
+   */
+  public filterInvoices(
+    invoices: IInvoice[],
+    filters: IInvoiceFilters
+  ): IInvoice[] {
+    return APIUtils.filterInvoices(invoices, filters);
+  }
+
+  /**
+   * Obtiene los tipos únicos disponibles de las facturas.
+   * Si se proporciona onlyFromClient, solo considera facturas de esos clientes.
+   *
+   * @param invoices - Lista de facturas
+   * @param onlyFromClient - Lista opcional de nombres de clientes para filtrar
+   * @returns Array de tipos únicos ordenados
+   */
+  public getAvailableTypes(
+    invoices: IInvoice[],
+    onlyFromClient?: string[]
+  ): string[] {
+    return APIUtils.getAvailableTypes(invoices, onlyFromClient);
   }
 
   private async request<T>(

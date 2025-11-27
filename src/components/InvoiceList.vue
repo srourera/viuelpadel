@@ -1,21 +1,24 @@
 <script lang="ts">
 import type { IInvoice } from "@/interfaces/Invoice";
+import ApiService from "@/services/ApiService";
 
 export default {
   name: "InvoiceList",
   props: {
     invoices: {
       type: Array as () => IInvoice[],
-      required: true,
+      required: false,
       default: () => [],
     },
     loading: {
       type: Boolean,
-      default: false,
+      required: false,
+      default: undefined,
     },
     error: {
       type: String,
-      default: "",
+      required: false,
+      default: undefined,
     },
     showTitle: {
       type: Boolean,
@@ -33,90 +36,111 @@ export default {
   data() {
     return {
       searchQuery: "",
+      searchQueryInput: "", // Valor del input (se actualiza en tiempo real)
       typeFilter: "",
       dateFilter: "",
+      internalInvoices: [] as IInvoice[],
+      internalLoading: true,
+      internalError: "",
     };
   },
   computed: {
+    finalInvoices(): IInvoice[] {
+      // Si se pasan facturas como prop, usar esas; si no, usar las internas
+      return this.invoices.length > 0 ? this.invoices : this.internalInvoices;
+    },
+    finalLoading(): boolean {
+      // Si se pasa loading como prop, usar ese; si no, usar el interno
+      return this.loading !== undefined ? this.loading : this.internalLoading;
+    },
+    finalError(): string {
+      // Si se pasa error como prop, usar ese; si no, usar el interno
+      return this.error !== undefined ? this.error : this.internalError;
+    },
     availableTypes(): string[] {
-      const types = new Set<string>();
-      let invoicesToCheck = this.invoices;
-      
-      // Si hay filtro por cliente, solo considerar esas facturas
-      if (this.onlyFromClient.length > 0) {
-        invoicesToCheck = this.invoices.filter((invoice) => {
-          return this.onlyFromClient.includes(invoice.Client);
-        });
-      }
-      
-      invoicesToCheck.forEach((invoice) => {
-        if (invoice.Tipus) {
-          types.add(invoice.Tipus);
-        }
-      });
-      return Array.from(types).sort();
+      // Obtener todas las facturas sin filtrar para calcular los tipos disponibles
+      const allInvoices =
+        this.invoices.length > 0 ? this.invoices : this.internalInvoices;
+
+      // Usar ApiService para obtener los tipos (que internamente usa APIUtils)
+      return ApiService.getAvailableTypes(
+        allInvoices,
+        this.onlyFromClient.length > 0 ? this.onlyFromClient : undefined
+      );
     },
     filteredInvoices(): IInvoice[] {
-      let filtered = this.invoices;
-
-      // Filtro por cliente(s) si se especifica
-      if (this.onlyFromClient.length > 0) {
-        filtered = filtered.filter((invoice) => {
-          return this.onlyFromClient.includes(invoice.Client);
-        });
+      // Si las facturas vienen como prop, filtrarlas localmente con ApiService
+      // Si vienen de la carga interna, ya están filtradas desde ApiService.getInvoices()
+      if (this.invoices.length > 0) {
+        const filters = {
+          searchQuery: this.searchQuery,
+          typeFilter: this.typeFilter,
+          dateFilter: this.dateFilter,
+          onlyFromClient:
+            this.onlyFromClient.length > 0 ? this.onlyFromClient : undefined,
+        };
+        // Usar ApiService para filtrar (que internamente usa APIUtils)
+        return ApiService.filterInvoices(this.invoices, filters);
       }
-
-      // Filtro de búsqueda por texto (número, cliente o descripción)
-      if (this.searchQuery.trim()) {
-        const query = this.searchQuery.toLowerCase().trim();
-        filtered = filtered.filter((invoice) => {
-          const numero = String(
-            invoice["Número de Factura"] || ""
-          ).toLowerCase();
-          const client = String(invoice.Client || "").toLowerCase();
-          const descripcio = String(invoice.Descripció || "").toLowerCase();
-          return (
-            numero.includes(query) ||
-            client.includes(query) ||
-            descripcio.includes(query)
-          );
-        });
+      // Las facturas ya vienen filtradas desde ApiService.getInvoices()
+      return this.finalInvoices;
+    },
+  },
+  async mounted() {
+    // Si no se pasan facturas como prop, cargarlas automáticamente
+    if (this.invoices.length === 0) {
+      await this.fetchInvoices();
+    }
+  },
+  watch: {
+    typeFilter() {
+      if (this.invoices.length === 0) {
+        this.fetchInvoices();
       }
-
-      // Filtro de tipo
-      if (this.typeFilter) {
-        filtered = filtered.filter(
-          (invoice) => invoice.Tipus === this.typeFilter
-        );
+    },
+    dateFilter() {
+      if (this.invoices.length === 0) {
+        this.fetchInvoices();
       }
-
-      // Filtro de fecha (mes-año)
-      if (this.dateFilter) {
-        const filterParts = this.dateFilter.split("-");
-        if (filterParts.length === 2 && filterParts[0] && filterParts[1]) {
-          const filterYear = parseInt(filterParts[0], 10);
-          const filterMonth = parseInt(filterParts[1], 10);
-
-          if (!isNaN(filterYear) && !isNaN(filterMonth)) {
-            filtered = filtered.filter((invoice) => {
-              if (!invoice.Data) return false;
-              const invoiceDate = this.parseDate(invoice.Data);
-              if (!invoiceDate || isNaN(invoiceDate.getTime())) return false;
-
-              const invoiceYear = invoiceDate.getFullYear();
-              const invoiceMonth = invoiceDate.getMonth() + 1; // getMonth() devuelve 0-11
-
-              return invoiceYear === filterYear && invoiceMonth === filterMonth;
-            });
-          }
+    },
+    onlyFromClient: {
+      handler() {
+        if (this.invoices.length === 0) {
+          this.fetchInvoices();
         }
-      }
-
-      return filtered;
+      },
+      deep: true,
     },
   },
   methods: {
+    async fetchInvoices() {
+      try {
+        this.internalLoading = true;
+        this.internalError = "";
+        // Pasar los filtros a getInvoices
+        // Por ahora se aplican en frontend con APIUtils dentro de ApiService
+        // En el futuro, cuando el backend soporte filtros, se pasarán en la petición HTTP
+        const filters = {
+          searchQuery: this.searchQuery,
+          typeFilter: this.typeFilter,
+          dateFilter: this.dateFilter,
+          onlyFromClient:
+            this.onlyFromClient.length > 0 ? this.onlyFromClient : undefined,
+        };
+        const response = await ApiService.getInvoices(filters);
+        // Las facturas ya vienen filtradas desde ApiService
+        this.internalInvoices = response.invoices;
+      } catch (err) {
+        this.internalError =
+          "Error al cargar las facturas. Por favor, intenta de nuevo.";
+        console.error("Error fetching invoices:", err);
+      } finally {
+        this.internalLoading = false;
+      }
+    },
     parseDate(dateString: string): Date | null {
+      // Necesitamos parseDate para formatDate, pero no podemos usar APIUtils directamente
+      // Por ahora lo mantenemos aquí, o podríamos moverlo a ApiService también
       if (!dateString) return null;
       try {
         // El formato del backend es dd-mm-yyyy
@@ -158,8 +182,23 @@ export default {
     },
     clearFilters() {
       this.searchQuery = "";
+      this.searchQueryInput = "";
       this.typeFilter = "";
       this.dateFilter = "";
+      // Si las facturas se cargan internamente, recargar sin filtros
+      if (this.invoices.length === 0) {
+        this.fetchInvoices();
+      }
+    },
+    onSearchBlur() {
+      // Al hacer blur, actualizar el filtro de búsqueda
+      if (this.searchQueryInput !== this.searchQuery) {
+        this.searchQuery = this.searchQueryInput;
+        // Si las facturas se cargan internamente, recargar con el nuevo filtro
+        if (this.invoices.length === 0) {
+          this.fetchInvoices();
+        }
+      }
     },
   },
 };
@@ -173,7 +212,9 @@ export default {
     <div class="filters-container">
       <div class="search-container">
         <input
-          v-model="searchQuery"
+          v-model="searchQueryInput"
+          @blur="onSearchBlur"
+          @keyup.enter="onSearchBlur"
           type="text"
           placeholder="Buscar por Número, Cliente o Descripción..."
           class="search-input"
@@ -197,7 +238,7 @@ export default {
         />
       </div>
       <button
-        v-if="searchQuery || typeFilter || dateFilter"
+        v-if="searchQuery || searchQueryInput || typeFilter || dateFilter"
         @click="clearFilters"
         class="clear-filters-button"
       >
@@ -205,16 +246,23 @@ export default {
       </button>
     </div>
 
-    <div v-if="loading" class="loading-state">
+    <div v-if="finalLoading" class="loading-state">
       <div class="spinner"></div>
       <p>Cargando facturas...</p>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p class="error-message">{{ error }}</p>
+    <div v-else-if="finalError" class="error-state">
+      <p class="error-message">{{ finalError }}</p>
+      <button
+        v-if="invoices.length === 0"
+        @click="fetchInvoices"
+        class="retry-button"
+      >
+        Reintentar
+      </button>
     </div>
 
-    <div v-else-if="invoices.length === 0" class="empty-state">
+    <div v-else-if="finalInvoices.length === 0" class="empty-state">
       <p>No hay facturas disponibles.</p>
     </div>
 
@@ -419,6 +467,23 @@ export default {
   font-size: 1rem;
 }
 
+.retry-button {
+  padding: 0.625rem 1.5rem;
+  background-color: #cddc39;
+  color: #292929;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background-color: #b8c837;
+}
+
 .invoices-table-container {
   background-color: #fff;
   border-radius: 8px;
@@ -518,4 +583,3 @@ export default {
   font-style: italic;
 }
 </style>
-

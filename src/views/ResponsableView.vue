@@ -1,7 +1,6 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
 import type { IClient } from "@/interfaces/Client";
-import type { IInvoice } from "@/interfaces/Invoice";
 import InvoiceList from "@/components/InvoiceList.vue";
 
 export default {
@@ -15,13 +14,10 @@ export default {
       loading: true,
       error: "",
       responsableName: "",
-      invoices: [] as IInvoice[],
-      invoicesLoading: false,
-      invoicesError: "",
     };
   },
   async mounted() {
-    await Promise.all([this.fetchClients(), this.fetchInvoices()]);
+    await this.fetchClients();
   },
   methods: {
     getResponsableNameFromRoute(): string {
@@ -43,20 +39,6 @@ export default {
         console.error("Error fetching clients:", err);
       } finally {
         this.loading = false;
-      }
-    },
-    async fetchInvoices() {
-      try {
-        this.invoicesLoading = true;
-        this.invoicesError = "";
-        const response = await ApiService.getInvoices();
-        this.invoices = response.invoices;
-      } catch (err) {
-        this.invoicesError =
-          "Error al cargar las facturas. Por favor, intenta de nuevo.";
-        console.error("Error fetching invoices:", err);
-      } finally {
-        this.invoicesLoading = false;
       }
     },
     getClientUrl(clientName: string): string {
@@ -110,18 +92,10 @@ export default {
 
       <div class="invoices-section">
         <InvoiceList
-          :invoices="invoices"
-          :loading="invoicesLoading"
-          :error="invoicesError"
           :show-title="true"
           title="Facturas"
           :only-from-client="clientNames"
         />
-        <div v-if="invoicesError && !invoicesLoading" class="retry-container">
-          <button @click="fetchInvoices" class="retry-button">
-            Reintentar cargar facturas
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -261,11 +235,4 @@ export default {
 .invoices-section {
   width: 100%;
 }
-
-.retry-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
 </style>
-
