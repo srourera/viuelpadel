@@ -1,22 +1,10 @@
 <script lang="ts">
+import ApiService from "@/services/ApiService";
 import type { IInvoice } from "@/interfaces/Invoice";
 
 export default {
   name: "InvoiceList",
   props: {
-    invoices: {
-      type: Array as () => IInvoice[],
-      required: true,
-      default: () => [],
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    error: {
-      type: String,
-      default: "",
-    },
     showTitle: {
       type: Boolean,
       default: true,
@@ -32,23 +20,29 @@ export default {
   },
   data() {
     return {
+      invoices: [] as IInvoice[],
+      loading: true,
+      error: "",
       searchQuery: "",
       typeFilter: "",
       dateFilter: "",
     };
   },
+  async mounted() {
+    await this.fetchInvoices();
+  },
   computed: {
     availableTypes(): string[] {
       const types = new Set<string>();
       let invoicesToCheck = this.invoices;
-      
+
       // Si hay filtro por cliente, solo considerar esas facturas
       if (this.onlyFromClient.length > 0) {
         invoicesToCheck = this.invoices.filter((invoice) => {
           return this.onlyFromClient.includes(invoice.Client);
         });
       }
-      
+
       invoicesToCheck.forEach((invoice) => {
         if (invoice.Tipus) {
           types.add(invoice.Tipus);
@@ -116,6 +110,20 @@ export default {
     },
   },
   methods: {
+    async fetchInvoices() {
+      try {
+        this.loading = true;
+        this.error = "";
+        const response = await ApiService.getInvoices();
+        this.invoices = response.invoices;
+      } catch (err) {
+        this.error =
+          "Error al cargar las facturas. Por favor, intenta de nuevo.";
+        console.error("Error fetching invoices:", err);
+      } finally {
+        this.loading = false;
+      }
+    },
     parseDate(dateString: string): Date | null {
       if (!dateString) return null;
       try {
@@ -271,6 +279,9 @@ export default {
           </tr>
         </tbody>
       </table>
+    </div>
+    <div v-if="error && !loading" class="retry-container">
+      <button @click="fetchInvoices" class="retry-button">Reintentar</button>
     </div>
   </div>
 </template>
@@ -517,5 +528,27 @@ export default {
   color: #999;
   font-style: italic;
 }
-</style>
 
+.retry-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.retry-button {
+  padding: 0.625rem 1.5rem;
+  background-color: #cddc39;
+  color: #292929;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background-color: #b8c837;
+}
+</style>
