@@ -12,9 +12,3 @@ export interface IInvoice {
   Link: string;
 }
 
-export interface IInvoiceFilters {
-  searchQuery?: string;
-  typeFilter?: string;
-  dateFilter?: string; // formato YYYY-MM
-  onlyFromClient?: string[];
-}
