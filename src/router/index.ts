@@ -4,6 +4,8 @@ import ClientsView from "@/views/ClientsView.vue";
 import ClientView from "@/views/ClientView.vue";
 import InvoicesView from "@/views/InvoicesView.vue";
 import ResponsableView from "@/views/ResponsableView.vue";
+import RemesasView from "@/views/RemesasView.vue";
+import RemesaEscolaViuElPadelView from "@/views/RemesaEscolaViuElPadelView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +34,16 @@ const router = createRouter({
       path: "/responsable/:responsableName",
       name: "responsable",
       component: ResponsableView,
+    },
+    {
+      path: "/remesas",
+      name: "remesas",
+      component: RemesasView,
+    },
+    {
+      path: "/remesa/escola-viu-el-padel",
+      name: "remesa-escola-viu-el-padel",
+      component: RemesaEscolaViuElPadelView,
     },
   ],
 });

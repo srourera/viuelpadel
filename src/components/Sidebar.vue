@@ -48,6 +48,15 @@ export default {
         <span class="nav-icon">🧾</span>
         <span class="nav-text" v-if="!isCollapsed">Facturas</span>
       </router-link>
+      <router-link
+        to="/remesas"
+        class="nav-item"
+        active-class="active"
+        :title="isCollapsed ? 'Remesas' : ''"
+      >
+        <span class="nav-icon">💳</span>
+        <span class="nav-text" v-if="!isCollapsed">Remesas</span>
+      </router-link>
     </nav>
   </aside>
 </template>
