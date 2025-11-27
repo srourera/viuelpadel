@@ -1,19 +1,19 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
-import type { IClient } from "@/interfaces/Client";
+import type { IClientListItem } from "@/interfaces/Client";
 
 export default {
   name: "ClientsView",
   data() {
     return {
-      clients: [] as IClient[],
+      clients: [] as IClientListItem[],
       loading: true,
       error: "",
       searchQuery: "",
     };
   },
   computed: {
-    filteredClients(): IClient[] {
+    filteredClients(): IClientListItem[] {
       if (!this.searchQuery.trim()) {
         return this.clients;
       }

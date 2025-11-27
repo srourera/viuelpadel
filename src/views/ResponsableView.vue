@@ -1,6 +1,6 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
-import type { IClient } from "@/interfaces/Client";
+import type { IClientListItem } from "@/interfaces/Client";
 import InvoiceList from "@/components/InvoiceList.vue";
 
 export default {
@@ -10,7 +10,7 @@ export default {
   },
   data() {
     return {
-      clients: [] as IClient[],
+      clients: [] as IClientListItem[],
       loading: true,
       error: "",
       responsableName: "",
@@ -236,4 +236,3 @@ export default {
   width: 100%;
 }
 </style>
-

@@ -131,6 +131,26 @@ export default {
             </span>
           </div>
         </div>
+
+        <div class="client-section">
+          <h2 class="section-title">Identificación</h2>
+          <div class="detail-row">
+            <span class="detail-label">Tipo de ID:</span>
+            <span class="detail-value">{{ client["ID Type"] || "-" }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Valor de ID:</span>
+            <span class="detail-value">{{ client["ID Value"] || "-" }}</span>
+          </div>
+        </div>
+
+        <div class="client-section">
+          <h2 class="section-title">Información Bancaria</h2>
+          <div class="detail-row">
+            <span class="detail-label">IBAN:</span>
+            <span class="detail-value">{{ client.IBAN || "-" }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="invoices-section">
