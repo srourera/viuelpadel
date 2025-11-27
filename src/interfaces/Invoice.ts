@@ -11,3 +11,4 @@ export interface IInvoice {
   Data: string;
   Link: string;
 }
+

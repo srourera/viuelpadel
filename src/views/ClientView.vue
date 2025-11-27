@@ -1,19 +1,27 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
 import type { IClient } from "@/interfaces/Client";
+import type { IInvoice } from "@/interfaces/Invoice";
+import InvoiceList from "@/components/InvoiceList.vue";
 
 export default {
   name: "ClientView",
+  components: {
+    InvoiceList,
+  },
   data() {
     return {
       client: null as IClient | null,
       loading: true,
       error: "",
       clientName: "",
+      invoices: [] as IInvoice[],
+      invoicesLoading: false,
+      invoicesError: "",
     };
   },
   async mounted() {
-    await this.fetchClient();
+    await Promise.all([this.fetchClient(), this.fetchInvoices()]);
   },
   methods: {
     getClientNameFromRoute(): string {
@@ -32,6 +40,30 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    async fetchInvoices() {
+      try {
+        this.invoicesLoading = true;
+        this.invoicesError = "";
+        const response = await ApiService.getInvoices();
+        this.invoices = response.invoices;
+      } catch (err) {
+        this.invoicesError =
+          "Error al cargar las facturas. Por favor, intenta de nuevo.";
+        console.error("Error fetching invoices:", err);
+      } finally {
+        this.invoicesLoading = false;
+      }
+    },
+    getResponsableUrl(responsableName: string): string {
+      const urlFriendlyName = responsableName.replace(/\s+/g, "_");
+      return `/responsable/${urlFriendlyName}`;
+    },
+  },
+  computed: {
+    clientNames(): string[] {
+      if (!this.client) return [];
+      return [this.client.Client];
     },
   },
 };
@@ -63,7 +95,16 @@ export default {
           </div>
           <div class="detail-row">
             <span class="detail-label">Responsable:</span>
-            <span class="detail-value">{{ client["Nom Responsable"] }}</span>
+            <span class="detail-value">
+              <router-link
+                v-if="client['Nom Responsable']"
+                :to="getResponsableUrl(client['Nom Responsable'])"
+                class="responsable-link"
+              >
+                {{ client["Nom Responsable"] }}
+              </router-link>
+              <span v-else class="no-data">-</span>
+            </span>
           </div>
         </div>
 
@@ -107,6 +148,22 @@ export default {
               <span v-else class="no-data">-</span>
             </span>
           </div>
+        </div>
+      </div>
+
+      <div class="invoices-section">
+        <InvoiceList
+          :invoices="invoices"
+          :loading="invoicesLoading"
+          :error="invoicesError"
+          :show-title="true"
+          title="Facturas"
+          :only-from-client="clientNames"
+        />
+        <div v-if="invoicesError && !invoicesLoading" class="retry-container">
+          <button @click="fetchInvoices" class="retry-button">
+            Reintentar cargar facturas
+          </button>
         </div>
       </div>
     </div>
@@ -268,9 +325,31 @@ export default {
   text-decoration: underline;
 }
 
+.responsable-link {
+  color: #292929;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.responsable-link:hover {
+  color: #cddc39;
+  text-decoration: underline;
+}
+
 .no-data {
   color: #999;
   font-style: italic;
+}
+
+.invoices-section {
+  margin-top: 2rem;
+}
+
+.retry-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 @media (min-width: 768px) {
@@ -284,3 +363,4 @@ export default {
   }
 }
 </style>
+

@@ -54,6 +54,10 @@ export default {
       const urlFriendlyName = clientName.replace(/\s+/g, "_");
       return `/client/${urlFriendlyName}`;
     },
+    getResponsableUrl(responsableName: string): string {
+      const urlFriendlyName = responsableName.replace(/\s+/g, "_");
+      return `/responsable/${urlFriendlyName}`;
+    },
   },
 };
 </script>
@@ -112,7 +116,16 @@ export default {
                 {{ client.Client }}
               </router-link>
             </td>
-            <td>{{ client["Nom Responsable"] }}</td>
+            <td>
+              <router-link
+                v-if="client['Nom Responsable']"
+                :to="getResponsableUrl(client['Nom Responsable'])"
+                class="responsable-link"
+              >
+                {{ client["Nom Responsable"] }}
+              </router-link>
+              <span v-else class="no-data">-</span>
+            </td>
             <td>
               <div class="address">
                 <div v-if="client['Direcció 1']">
@@ -322,6 +335,18 @@ export default {
 }
 
 .client-link:hover {
+  color: #cddc39;
+  text-decoration: underline;
+}
+
+.responsable-link {
+  color: #292929;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.responsable-link:hover {
   color: #cddc39;
   text-decoration: underline;
 }
