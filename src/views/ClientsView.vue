@@ -36,6 +36,9 @@ export default {
     await this.fetchClients();
   },
   methods: {
+    goToNewClient() {
+      this.$router.push("/clients/new");
+    },
     async fetchClients() {
       try {
         this.loading = true;
@@ -66,15 +69,18 @@ export default {
   <div class="clients-view">
     <div class="clients-header">
       <h1 class="clients-title">Clientes</h1>
-      <div class="search-container">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Buscar por Cliente, Responsable, Email o Teléfono..."
-          class="search-input"
-        />
-        <span class="search-icon">🔍</span>
-      </div>
+      <button @click="goToNewClient" class="new-client-button">
+        + Cliente
+      </button>
+    </div>
+    <div class="search-container">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar por Cliente, Responsable, Email o Teléfono..."
+        class="search-input"
+      />
+      <span class="search-icon">🔍</span>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -175,7 +181,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .clients-title {
@@ -185,12 +191,33 @@ export default {
   margin: 0;
 }
 
+.new-client-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #cddc39;
+  color: #292929;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.new-client-button:hover {
+  background-color: #b8c837;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(205, 220, 57, 0.3);
+}
+
 .search-container {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   max-width: 400px;
+  margin-bottom: 2rem;
 }
 
 .search-input {
@@ -373,5 +400,22 @@ export default {
 .no-data {
   color: #999;
   font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .clients-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .new-client-button {
+    width: 100%;
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>

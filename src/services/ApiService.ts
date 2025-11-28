@@ -1,5 +1,9 @@
 import AuthService from "./AuthService";
-import type { IClientList, IClient } from "@/interfaces/Client";
+import type {
+  IClientList,
+  IClient,
+  INewClientPayload,
+} from "@/interfaces/Client";
 import type {
   IInvoiceList,
   IManualInvoicePayload,
@@ -60,6 +64,26 @@ class ApiService {
         body: JSON.stringify(payload),
       }
     );
+  }
+
+  public async createClient(payload: INewClientPayload): Promise<unknown> {
+    return await this.request<unknown>("/viuelpadel/clients/new-client", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public async editClient(payload: INewClientPayload): Promise<unknown> {
+    return await this.request<unknown>("/viuelpadel/clients/edit-client", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
   }
 
   public clearCache(): void {

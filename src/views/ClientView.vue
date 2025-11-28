@@ -41,6 +41,26 @@ export default {
       const urlFriendlyName = responsableName.replace(/\s+/g, "_");
       return `/responsable/${urlFriendlyName}`;
     },
+    goToEditClient() {
+      if (this.client) {
+        const urlFriendlyName = this.client.Client.replace(/\s+/g, "_");
+        this.$router.push(`/client/${urlFriendlyName}/edit`);
+      }
+    },
+    formatDate(dateString: string): string {
+      if (!dateString) return "";
+      try {
+        // Si viene en formato ISO (YYYY-MM-DD), convertir a dd/mm/yyyy
+        if (dateString.includes("-") && dateString.length === 10) {
+          const parts = dateString.split("-");
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        // Si ya está en formato dd/mm/yyyy, devolverlo tal cual
+        return dateString;
+      } catch {
+        return dateString;
+      }
+    },
   },
   computed: {
     clientNames(): string[] {
@@ -55,6 +75,13 @@ export default {
   <div class="client-view">
     <div class="client-header">
       <h1 class="client-title">{{ getClientNameFromRoute() }}</h1>
+      <button
+        v-if="client"
+        @click="goToEditClient"
+        class="edit-client-button"
+      >
+        Editar
+      </button>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -151,6 +178,28 @@ export default {
             <span class="detail-value">{{ client.IBAN || "-" }}</span>
           </div>
         </div>
+
+        <div class="client-section">
+          <h2 class="section-title">Referencias</h2>
+          <div class="detail-row">
+            <span class="detail-label">Referència Client:</span>
+            <span class="detail-value">{{
+              client["Referència Client"] || "-"
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Referència Mandat:</span>
+            <span class="detail-value">{{
+              client["Referència Mandat"] || "-"
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Data Firma Mandat:</span>
+            <span class="detail-value">{{
+              formatDate(client["Data Firma Mandat"]) || "-"
+            }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="invoices-section">
@@ -174,8 +223,8 @@ export default {
 
 .client-header {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
 }
 
@@ -203,6 +252,26 @@ export default {
   font-weight: 600;
   color: #292929;
   margin: 0;
+}
+
+.edit-client-button {
+  padding: 0.625rem 1.5rem;
+  background-color: #cddc39;
+  color: #292929;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.edit-client-button:hover {
+  background-color: #b8c837;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(205, 220, 57, 0.3);
 }
 
 .loading-state,
@@ -351,4 +420,3 @@ export default {
   }
 }
 </style>
-

@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import ClientsView from "@/views/ClientsView.vue";
 import ClientView from "@/views/ClientView.vue";
+import NewClientView from "@/views/NewClientView.vue";
+import EditClientView from "@/views/EditClientView.vue";
 import InvoicesView from "@/views/InvoicesView.vue";
 import ManualInvoiceView from "@/views/ManualInvoiceView.vue";
 import ResponsableView from "@/views/ResponsableView.vue";
@@ -22,9 +24,19 @@ const router = createRouter({
       component: ClientsView,
     },
     {
+      path: "/clients/new",
+      name: "new-client",
+      component: NewClientView,
+    },
+    {
       path: "/client/:clientName",
       name: "client",
       component: ClientView,
+    },
+    {
+      path: "/client/:clientName/edit",
+      name: "edit-client",
+      component: EditClientView,
     },
     {
       path: "/invoices",
