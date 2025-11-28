@@ -19,10 +19,10 @@ export default {
       }
       const query = this.searchQuery.toLowerCase().trim();
       return this.clients.filter((client) => {
-        const cliente = (client.Client || "").toLowerCase();
-        const responsable = (client["Nom Responsable"] || "").toLowerCase();
-        const email = (client.Email || "").toLowerCase();
-        const telefono = String(client.Telèfon || "").toLowerCase();
+        const cliente = (client.name || "").toLowerCase();
+        const responsable = (client.responsible?.name || "").toLowerCase();
+        const email = (client.email || "").toLowerCase();
+        const telefono = String(client.phone || "").toLowerCase();
         return (
           cliente.includes(query) ||
           responsable.includes(query) ||
@@ -53,13 +53,11 @@ export default {
         this.loading = false;
       }
     },
-    getClientUrl(clientName: string): string {
-      const urlFriendlyName = clientName.replace(/\s+/g, "_");
-      return `/client/${urlFriendlyName}`;
+    getClientUrl(clientId: number): string {
+      return `/client/${clientId}`;
     },
-    getResponsableUrl(responsableName: string): string {
-      const urlFriendlyName = responsableName.replace(/\s+/g, "_");
-      return `/responsable/${urlFriendlyName}`;
+    getResponsableUrl(responsibleId: number): string {
+      return `/responsable/${responsibleId}`;
     },
   },
 };
@@ -113,52 +111,49 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(client, index) in filteredClients" :key="index">
+          <tr v-for="client in filteredClients" :key="client.id">
             <td class="client-name">
-              <router-link
-                :to="getClientUrl(client.Client)"
-                class="client-link"
-              >
-                {{ client.Client }}
+              <router-link :to="getClientUrl(client.id)" class="client-link">
+                {{ client.name }}
               </router-link>
             </td>
             <td>
               <router-link
-                v-if="client['Nom Responsable']"
-                :to="getResponsableUrl(client['Nom Responsable'])"
+                v-if="client.responsible?.name"
+                :to="getResponsableUrl(client.responsible.id)"
                 class="responsable-link"
               >
-                {{ client["Nom Responsable"] }}
+                {{ client.responsible.name }}
               </router-link>
               <span v-else class="no-data">-</span>
             </td>
             <td>
               <div class="address">
-                <div v-if="client['Direcció 1']">
-                  {{ client["Direcció 1"] }}
+                <div v-if="client.address1">
+                  {{ client.address1 }}
                 </div>
-                <div v-if="client['Direcció 2']">
-                  {{ client["Direcció 2"] }}
+                <div v-if="client.address2">
+                  {{ client.address2 }}
                 </div>
               </div>
             </td>
             <td>
               <a
-                v-if="client.Email"
-                :href="`mailto:${client.Email}`"
+                v-if="client.email"
+                :href="`mailto:${client.email}`"
                 class="email-link"
               >
-                {{ client.Email }}
+                {{ client.email }}
               </a>
               <span v-else class="no-data">-</span>
             </td>
             <td>
               <a
-                v-if="client.Telèfon"
-                :href="`tel:${client.Telèfon}`"
+                v-if="client.phone"
+                :href="`tel:${client.phone}`"
                 class="phone-link"
               >
-                {{ client.Telèfon }}
+                {{ client.phone }}
               </a>
               <span v-else class="no-data">-</span>
             </td>

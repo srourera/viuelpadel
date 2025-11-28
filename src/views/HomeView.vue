@@ -42,17 +42,17 @@ export default {
       const currentYear = now.getFullYear();
       return this.invoices
         .filter((inv) => {
-          const date = this.parseDate(inv.Data);
+          const date = this.parseDate(inv.dueDate);
           return date && date.getFullYear() === currentYear;
         })
-        .reduce((sum, inv) => sum + (inv.Import || 0), 0);
+        .reduce((sum, inv) => sum + (inv.amount || 0), 0);
     },
     currentMonthInvoices(): number {
       const now = new Date();
       const currentMonth = now.getMonth() + 1;
       const currentYear = now.getFullYear();
       return this.invoices.filter((inv) => {
-        const date = this.parseDate(inv.Data);
+        const date = this.parseDate(inv.dueDate);
         return (
           date &&
           date.getFullYear() === currentYear &&
@@ -85,7 +85,7 @@ export default {
         const month = date.getMonth() + 1;
         const revenue = this.getMonthRevenue(year, month);
         const count = this.invoices.filter((inv) => {
-          const invDate = this.parseDate(inv.Data);
+          const invDate = this.parseDate(inv.dueDate);
           return (
             invDate &&
             invDate.getFullYear() === year &&
@@ -107,10 +107,10 @@ export default {
       const clientRevenue = new Map<string, { revenue: number; count: number }>();
 
       this.invoices.forEach((inv) => {
-        const client = inv.Client;
+        const client = inv.client.name;
         const current = clientRevenue.get(client) || { revenue: 0, count: 0 };
         clientRevenue.set(client, {
-          revenue: current.revenue + (inv.Import || 0),
+          revenue: current.revenue + (inv.amount || 0),
           count: current.count + 1,
         });
       });
@@ -171,14 +171,14 @@ export default {
     getMonthRevenue(year: number, month: number): number {
       return this.invoices
         .filter((inv) => {
-          const date = this.parseDate(inv.Data);
+          const date = this.parseDate(inv.dueDate);
           return (
             date &&
             date.getFullYear() === year &&
             date.getMonth() + 1 === month
           );
         })
-        .reduce((sum, inv) => sum + (inv.Import || 0), 0);
+        .reduce((sum, inv) => sum + (inv.amount || 0), 0);
     },
     formatCurrency(amount: number): string {
       if (amount === null || amount === undefined) return "0,00 €";
@@ -187,9 +187,15 @@ export default {
         currency: "EUR",
       }).format(amount);
     },
-    getClientUrl(clientName: string): string {
-      const urlFriendlyName = clientName.replace(/\s+/g, "_");
-      return `/client/${urlFriendlyName}`;
+    getClientUrl(clientId: number): string {
+      return `/client/${clientId}`;
+    },
+    getClientUrlFromName(clientName: string): string {
+      const client = this.clients.find((c) => c.name === clientName);
+      if (client) {
+        return `/client/${client.id}`;
+      }
+      return "#";
     },
   },
 };
@@ -300,7 +306,7 @@ export default {
             <router-link
               v-for="(client, index) in topClients"
               :key="client.client"
-              :to="getClientUrl(client.client)"
+              :to="getClientUrlFromName(client.client)"
               class="client-row"
             >
               <div class="client-rank">#{{ index + 1 }}</div>

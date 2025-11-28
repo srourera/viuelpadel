@@ -20,16 +20,17 @@ export default {
     await this.fetchClient();
   },
   methods: {
-    getClientNameFromRoute(): string {
-      const routeParam = this.$route.params.clientName as string;
-      return routeParam.replace(/_/g, " ");
+    getClientIdFromRoute(): number {
+      const routeParam = this.$route.params.clientId as string;
+      return parseInt(routeParam, 10);
     },
     async fetchClient() {
       try {
         this.loading = true;
         this.error = "";
-        this.clientName = this.getClientNameFromRoute();
-        this.client = await ApiService.getClient(this.clientName);
+        const clientId = this.getClientIdFromRoute();
+        this.client = await ApiService.getClient(clientId);
+        this.clientName = this.client?.name || "";
       } catch (err) {
         this.error = "Error al cargar el cliente. Por favor, intenta de nuevo.";
         console.error("Error fetching client:", err);
@@ -37,14 +38,12 @@ export default {
         this.loading = false;
       }
     },
-    getResponsableUrl(responsableName: string): string {
-      const urlFriendlyName = responsableName.replace(/\s+/g, "_");
-      return `/responsable/${urlFriendlyName}`;
+    getResponsableUrl(responsibleId: number): string {
+      return `/responsable/${responsibleId}`;
     },
     goToEditClient() {
       if (this.client) {
-        const urlFriendlyName = this.client.Client.replace(/\s+/g, "_");
-        this.$router.push(`/client/${urlFriendlyName}/edit`);
+        this.$router.push(`/client/${this.client.id}/edit`);
       }
     },
     formatDate(dateString: string): string {
@@ -63,9 +62,9 @@ export default {
     },
   },
   computed: {
-    clientNames(): string[] {
+    clientIds(): number[] {
       if (!this.client) return [];
-      return [this.client.Client];
+      return [this.client.id];
     },
   },
 };
@@ -74,7 +73,7 @@ export default {
 <template>
   <div class="client-view">
     <div class="client-header">
-      <h1 class="client-title">{{ getClientNameFromRoute() }}</h1>
+      <h1 class="client-title">{{ clientName || "Cargando..." }}</h1>
       <button
         v-if="client"
         @click="goToEditClient"
@@ -100,17 +99,17 @@ export default {
           <h2 class="section-title">Información General</h2>
           <div class="detail-row">
             <span class="detail-label">Cliente:</span>
-            <span class="detail-value">{{ client.Client }}</span>
+            <span class="detail-value">{{ client.name }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Responsable:</span>
             <span class="detail-value">
               <router-link
-                v-if="client['Nom Responsable']"
-                :to="getResponsableUrl(client['Nom Responsable'])"
+                v-if="client.responsible?.name"
+                :to="getResponsableUrl(client.responsible.id)"
                 class="responsable-link"
               >
-                {{ client["Nom Responsable"] }}
+                {{ client.responsible.name }}
               </router-link>
               <span v-else class="no-data">-</span>
             </span>
@@ -121,11 +120,11 @@ export default {
           <h2 class="section-title">Dirección</h2>
           <div class="detail-row">
             <span class="detail-label">Dirección 1:</span>
-            <span class="detail-value">{{ client["Direcció 1"] || "-" }}</span>
+            <span class="detail-value">{{ client.address1 || "-" }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Dirección 2:</span>
-            <span class="detail-value">{{ client["Direcció 2"] || "-" }}</span>
+            <span class="detail-value">{{ client.address2 || "-" }}</span>
           </div>
         </div>
 
@@ -135,11 +134,11 @@ export default {
             <span class="detail-label">Email:</span>
             <span class="detail-value">
               <a
-                v-if="client.Email"
-                :href="`mailto:${client.Email}`"
+                v-if="client.email"
+                :href="`mailto:${client.email}`"
                 class="contact-link"
               >
-                {{ client.Email }}
+                {{ client.email }}
               </a>
               <span v-else class="no-data">-</span>
             </span>
@@ -148,11 +147,11 @@ export default {
             <span class="detail-label">Teléfono:</span>
             <span class="detail-value">
               <a
-                v-if="client.Telèfon"
-                :href="`tel:${client.Telèfon}`"
+                v-if="client.phone"
+                :href="`tel:${client.phone}`"
                 class="contact-link"
               >
-                {{ client.Telèfon }}
+                {{ client.phone }}
               </a>
               <span v-else class="no-data">-</span>
             </span>
@@ -163,11 +162,11 @@ export default {
           <h2 class="section-title">Identificación</h2>
           <div class="detail-row">
             <span class="detail-label">Tipo de ID:</span>
-            <span class="detail-value">{{ client["ID Type"] || "-" }}</span>
+            <span class="detail-value">{{ client.id_type || "-" }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Valor de ID:</span>
-            <span class="detail-value">{{ client["ID Value"] || "-" }}</span>
+            <span class="detail-value">{{ client.id_value || "-" }}</span>
           </div>
         </div>
 
@@ -175,7 +174,7 @@ export default {
           <h2 class="section-title">Información Bancaria</h2>
           <div class="detail-row">
             <span class="detail-label">IBAN:</span>
-            <span class="detail-value">{{ client.IBAN || "-" }}</span>
+            <span class="detail-value">{{ client.iban || "-" }}</span>
           </div>
         </div>
 
@@ -184,19 +183,19 @@ export default {
           <div class="detail-row">
             <span class="detail-label">Referència Client:</span>
             <span class="detail-value">{{
-              client["Referència Client"] || "-"
+              client.bank_client_reference || "-"
             }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Referència Mandat:</span>
             <span class="detail-value">{{
-              client["Referència Mandat"] || "-"
+              client.bank_mandate_reference || "-"
             }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Data Firma Mandat:</span>
             <span class="detail-value">{{
-              formatDate(client["Data Firma Mandat"]) || "-"
+              formatDate(client.bank_mandate_signed_at) || "-"
             }}</span>
           </div>
         </div>
@@ -206,7 +205,7 @@ export default {
         <InvoiceList
           :show-title="true"
           title="Facturas"
-          :only-from-client="clientNames"
+          :only-from-client-ids="clientIds"
         />
       </div>
     </div>

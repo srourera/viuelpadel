@@ -1,6 +1,6 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
-import type { IClientListItem } from "@/interfaces/Client";
+import type { IClientReference } from "@/interfaces/Client";
 import InvoiceList from "@/components/InvoiceList.vue";
 
 export default {
@@ -10,45 +10,43 @@ export default {
   },
   data() {
     return {
-      clients: [] as IClientListItem[],
+      clients: [] as IClientReference[],
       loading: true,
       error: "",
       responsableName: "",
     };
   },
   async mounted() {
-    await this.fetchClients();
+    await this.fetchResponsible();
   },
   methods: {
-    getResponsableNameFromRoute(): string {
-      const routeParam = this.$route.params.responsableName as string;
-      return routeParam.replace(/_/g, " ");
+    getResponsibleIdFromRoute(): number {
+      const routeParam = this.$route.params.responsibleId as string;
+      return parseInt(routeParam, 10);
     },
-    async fetchClients() {
+    async fetchResponsible() {
       try {
         this.loading = true;
         this.error = "";
-        this.responsableName = this.getResponsableNameFromRoute();
-        const response = await ApiService.getClients();
-        this.clients = response.clients.filter(
-          (client) => client["Nom Responsable"] === this.responsableName
-        );
+        const responsibleId = this.getResponsibleIdFromRoute();
+        const responsible = await ApiService.getResponsible(responsibleId);
+        this.responsableName = responsible.name;
+        this.clients = responsible.clients || [];
       } catch (err) {
         this.error =
-          "Error al cargar los clientes. Por favor, intenta de nuevo.";
-        console.error("Error fetching clients:", err);
+          "Error al cargar el responsable. Por favor, intenta de nuevo.";
+        console.error("Error fetching responsible:", err);
       } finally {
         this.loading = false;
       }
     },
-    getClientUrl(clientName: string): string {
-      const urlFriendlyName = clientName.replace(/\s+/g, "_");
-      return `/client/${urlFriendlyName}`;
+    getClientUrl(clientId: number): string {
+      return `/client/${clientId}`;
     },
   },
   computed: {
-    clientNames(): string[] {
-      return this.clients.map((client) => client.Client);
+    clientIds(): number[] {
+      return this.clients.map((client) => client.id);
     },
   },
 };
@@ -57,7 +55,7 @@ export default {
 <template>
   <div class="responsable-view">
     <div class="responsable-header">
-      <h1 class="responsable-title">{{ getResponsableNameFromRoute() }}</h1>
+      <h1 class="responsable-title">{{ responsableName || "Cargando..." }}</h1>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -67,7 +65,7 @@ export default {
 
     <div v-else-if="error" class="error-state">
       <p class="error-message">{{ error }}</p>
-      <button @click="fetchClients" class="retry-button">Reintentar</button>
+      <button @click="fetchResponsible" class="retry-button">Reintentar</button>
     </div>
 
     <div v-else class="responsable-content">
@@ -79,12 +77,12 @@ export default {
           </div>
           <div v-else class="clients-list">
             <router-link
-              v-for="(client, index) in clients"
-              :key="index"
-              :to="getClientUrl(client.Client)"
+              v-for="client in clients"
+              :key="client.id"
+              :to="getClientUrl(client.id)"
               class="client-item"
             >
-              {{ client.Client }}
+              {{ client.name }}
             </router-link>
           </div>
         </div>
@@ -94,7 +92,7 @@ export default {
         <InvoiceList
           :show-title="true"
           title="Facturas"
-          :only-from-client="clientNames"
+          :only-from-client-ids="clientIds"
         />
       </div>
     </div>

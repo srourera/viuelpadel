@@ -7,18 +7,18 @@ export default {
   data() {
     return {
       form: {
-        Client: "",
-        "Nom Responsable": "",
-        "Direcció 1": "",
-        "Direcció 2": "",
-        Email: "",
-        Telèfon: "",
-        "ID Type": "",
-        "ID Value": "",
-        "Referència Client": "",
-        "Referència Mandat": "",
-        "Data Firma Mandat": "",
-        IBAN: "",
+        name: "",
+        responsible_name: "",
+        address1: "",
+        address2: "",
+        email: "",
+        phone: "",
+        id_type: "",
+        id_value: "",
+        bank_client_reference: "",
+        bank_mandate_reference: "",
+        bank_mandate_signed_at: "",
+        iban: "",
       } as INewClientPayload,
       loading: false,
       error: "",
@@ -28,7 +28,7 @@ export default {
   methods: {
     async submitForm() {
       // Validar campos requeridos básicos
-      if (!this.form.Client) {
+      if (!this.form.name) {
         this.error = "Por favor, introduce el nombre del cliente.";
         return;
       }
@@ -39,7 +39,7 @@ export default {
 
       try {
         // Convertir fecha de dd/mm/aaaa a formato ISO si está presente
-        let formattedDate = this.form["Data Firma Mandat"];
+        let formattedDate = this.form.bank_mandate_signed_at;
         if (formattedDate) {
           const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
           if (dateRegex.test(formattedDate)) {
@@ -50,7 +50,7 @@ export default {
 
         const payload: INewClientPayload = {
           ...this.form,
-          "Data Firma Mandat": formattedDate,
+          bank_mandate_signed_at: formattedDate,
         };
 
         await ApiService.createClient(payload);
@@ -58,18 +58,18 @@ export default {
         this.success = true;
         // Limpiar formulario
         this.form = {
-          Client: "",
-          "Nom Responsable": "",
-          "Direcció 1": "",
-          "Direcció 2": "",
-          Email: "",
-          Telèfon: "",
-          "ID Type": "",
-          "ID Value": "",
-          "Referència Client": "",
-          "Referència Mandat": "",
-          "Data Firma Mandat": "",
-          IBAN: "",
+          name: "",
+          responsible_name: "",
+          address1: "",
+          address2: "",
+          email: "",
+          phone: "",
+          id_type: "",
+          id_value: "",
+          bank_client_reference: "",
+          bank_mandate_reference: "",
+          bank_mandate_signed_at: "",
+          iban: "",
         };
 
         // Redirigir después de 2 segundos
@@ -94,7 +94,7 @@ export default {
         value = value.substring(0, 5) + "/" + value.substring(5, 9);
       }
 
-      this.form["Data Firma Mandat"] = value;
+      this.form.bank_mandate_signed_at = value;
     },
   },
 };
@@ -115,7 +115,7 @@ export default {
           </label>
           <input
             id="client"
-            v-model="form.Client"
+            v-model="form.name"
             type="text"
             class="form-input"
             placeholder="Nom del client"
@@ -129,7 +129,7 @@ export default {
           </label>
           <input
             id="nom-responsable"
-            v-model="form['Nom Responsable']"
+            v-model="form.responsible_name"
             type="text"
             class="form-input"
             placeholder="Nom del responsable"
@@ -140,7 +140,7 @@ export default {
           <label for="direccio1" class="form-label">Direcció 1</label>
           <input
             id="direccio1"
-            v-model="form['Direcció 1']"
+            v-model="form.address1"
             type="text"
             class="form-input"
             placeholder="Primera línia de direcció"
@@ -151,7 +151,7 @@ export default {
           <label for="direccio2" class="form-label">Direcció 2</label>
           <input
             id="direccio2"
-            v-model="form['Direcció 2']"
+            v-model="form.address2"
             type="text"
             class="form-input"
             placeholder="Segona línia de direcció"
@@ -162,7 +162,7 @@ export default {
           <label for="email" class="form-label">Email</label>
           <input
             id="email"
-            v-model="form.Email"
+            v-model="form.email"
             type="email"
             class="form-input"
             placeholder="email@exemple.com"
@@ -173,7 +173,7 @@ export default {
           <label for="telefon" class="form-label">Telèfon</label>
           <input
             id="telefon"
-            v-model="form.Telèfon"
+            v-model="form.phone"
             type="tel"
             class="form-input"
             placeholder="Telèfon de contacte"
@@ -184,7 +184,7 @@ export default {
           <label for="id-type" class="form-label">ID Type</label>
           <input
             id="id-type"
-            v-model="form['ID Type']"
+            v-model="form.id_type"
             type="text"
             class="form-input"
             placeholder="Tipus d'identificació"
@@ -195,7 +195,7 @@ export default {
           <label for="id-value" class="form-label">ID Value</label>
           <input
             id="id-value"
-            v-model="form['ID Value']"
+            v-model="form.id_value"
             type="text"
             class="form-input"
             placeholder="Valor de l'identificació"
@@ -208,7 +208,7 @@ export default {
           </label>
           <input
             id="referencia-client"
-            v-model="form['Referència Client']"
+            v-model="form.bank_client_reference"
             type="text"
             class="form-input"
             placeholder="Referència del client"
@@ -221,7 +221,7 @@ export default {
           </label>
           <input
             id="referencia-mandat"
-            v-model="form['Referència Mandat']"
+            v-model="form.bank_mandate_reference"
             type="text"
             class="form-input"
             placeholder="Referència del mandat"
@@ -235,7 +235,7 @@ export default {
           <div class="date-input-wrapper">
             <input
               id="data-firma-mandat"
-              v-model="form['Data Firma Mandat']"
+              v-model="form.bank_mandate_signed_at"
               @input="formatDateInput"
               type="text"
               class="form-input date-input"
@@ -250,7 +250,7 @@ export default {
           <label for="iban" class="form-label">IBAN</label>
           <input
             id="iban"
-            v-model="form.IBAN"
+            v-model="form.iban"
             type="text"
             class="form-input"
             placeholder="IBAN del compte bancari"

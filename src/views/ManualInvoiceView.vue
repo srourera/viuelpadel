@@ -3,7 +3,7 @@ import ApiService from "@/services/ApiService";
 import type { IClientListItem } from "@/interfaces/Client";
 
 interface ManualInvoiceForm {
-  client: string;
+  clientId: number | null;
   import: string;
   concepte: string;
   metodePagament: string;
@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       form: {
-        client: "",
+        clientId: null,
         import: "",
         concepte: "",
         metodePagament: "",
@@ -48,7 +48,7 @@ export default {
     async submitForm() {
       // Validar campos requeridos
       if (
-        !this.form.client ||
+        !this.form.clientId ||
         !this.form.import ||
         !this.form.concepte ||
         !this.form.metodePagament ||
@@ -83,11 +83,11 @@ export default {
 
         // Construir el payload en el formato requerido
         const payload = {
-          Client: this.form.client,
-          "Import (IVA inclòs)": importValue,
-          Concepte: this.form.concepte,
-          "Mètode pagament": this.form.metodePagament,
-          Venciment: formattedDate,
+          clientId: this.form.clientId,
+          amount: importValue,
+          description: this.form.concepte,
+          paymentMethod: this.form.metodePagament,
+          dueDate: formattedDate,
         };
 
         await ApiService.createManualInvoice(payload);
@@ -95,7 +95,7 @@ export default {
         this.success = true;
         // Limpiar formulario
         this.form = {
-          client: "",
+          clientId: null,
           import: "",
           concepte: "",
           metodePagament: "",
@@ -146,22 +146,22 @@ export default {
           </label>
           <select
             id="client"
-            v-model="form.client"
+            v-model="form.clientId"
             class="form-input form-select"
             required
             :disabled="loadingClients"
           >
-            <option value="" disabled>
+            <option :value="null" disabled>
               {{
                 loadingClients ? "Carregant clients..." : "Selecciona un client"
               }}
             </option>
             <option
               v-for="client in clients"
-              :key="client.Client"
-              :value="client.Client"
+              :key="client.id"
+              :value="client.id"
             >
-              {{ client.Client }}
+              {{ client.name }}
             </option>
           </select>
         </div>

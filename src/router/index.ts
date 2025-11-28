@@ -29,12 +29,12 @@ const router = createRouter({
       component: NewClientView,
     },
     {
-      path: "/client/:clientName",
+      path: "/client/:clientId",
       name: "client",
       component: ClientView,
     },
     {
-      path: "/client/:clientName/edit",
+      path: "/client/:clientId/edit",
       name: "edit-client",
       component: EditClientView,
     },
@@ -49,7 +49,7 @@ const router = createRouter({
       component: ManualInvoiceView,
     },
     {
-      path: "/responsable/:responsableName",
+      path: "/responsable/:responsibleId",
       name: "responsable",
       component: ResponsableView,
     },

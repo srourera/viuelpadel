@@ -17,6 +17,10 @@ export default {
       type: Array as () => string[],
       default: () => [],
     },
+    onlyFromClientIds: {
+      type: Array as () => number[],
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -39,13 +43,18 @@ export default {
       // Si hay filtro por cliente, solo considerar esas facturas
       if (this.onlyFromClient.length > 0) {
         invoicesToCheck = this.invoices.filter((invoice) => {
-          return this.onlyFromClient.includes(invoice.Client);
+          return this.onlyFromClient.includes(invoice.client.name);
+        });
+      }
+      if (this.onlyFromClientIds.length > 0) {
+        invoicesToCheck = this.invoices.filter((invoice) => {
+          return this.onlyFromClientIds.includes(invoice.client.id);
         });
       }
 
       invoicesToCheck.forEach((invoice) => {
-        if (invoice.Tipus) {
-          types.add(invoice.Tipus);
+        if (invoice.type) {
+          types.add(invoice.type);
         }
       });
       return Array.from(types).sort();
@@ -56,7 +65,12 @@ export default {
       // Filtro por cliente(s) si se especifica
       if (this.onlyFromClient.length > 0) {
         filtered = filtered.filter((invoice) => {
-          return this.onlyFromClient.includes(invoice.Client);
+          return this.onlyFromClient.includes(invoice.client.name);
+        });
+      }
+      if (this.onlyFromClientIds.length > 0) {
+        filtered = filtered.filter((invoice) => {
+          return this.onlyFromClientIds.includes(invoice.client.id);
         });
       }
 
@@ -64,11 +78,9 @@ export default {
       if (this.searchQuery.trim()) {
         const query = this.searchQuery.toLowerCase().trim();
         filtered = filtered.filter((invoice) => {
-          const numero = String(
-            invoice["Número de Factura"] || ""
-          ).toLowerCase();
-          const client = String(invoice.Client || "").toLowerCase();
-          const descripcio = String(invoice.Descripció || "").toLowerCase();
+          const numero = String(invoice.invoiceNumber || "").toLowerCase();
+          const client = String(invoice.client?.name || "").toLowerCase();
+          const descripcio = String(invoice.description || "").toLowerCase();
           return (
             numero.includes(query) ||
             client.includes(query) ||
@@ -80,7 +92,7 @@ export default {
       // Filtro de tipo
       if (this.typeFilter) {
         filtered = filtered.filter(
-          (invoice) => invoice.Tipus === this.typeFilter
+          (invoice) => invoice.type === this.typeFilter
         );
       }
 
@@ -93,8 +105,8 @@ export default {
 
           if (!isNaN(filterYear) && !isNaN(filterMonth)) {
             filtered = filtered.filter((invoice) => {
-              if (!invoice.Data) return false;
-              const invoiceDate = this.parseDate(invoice.Data);
+              if (!invoice.dueDate) return false;
+              const invoiceDate = this.parseDate(invoice.dueDate);
               if (!invoiceDate || isNaN(invoiceDate.getTime())) return false;
 
               const invoiceYear = invoiceDate.getFullYear();
@@ -160,9 +172,8 @@ export default {
         currency: "EUR",
       }).format(amount);
     },
-    getClientUrl(clientName: string): string {
-      const urlFriendlyName = clientName.replace(/\s+/g, "_");
-      return `/client/${urlFriendlyName}`;
+    getClientUrl(clientId: number): string {
+      return `/client/${clientId}`;
     },
     clearFilters() {
       this.searchQuery = "";
@@ -239,42 +250,45 @@ export default {
             <th>Cliente</th>
             <th>Descripción</th>
             <th>Importe</th>
-            <th>Fecha</th>
+            <th>Vencimiento</th>
+            <th>Creación</th>
             <th>Link</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(invoice, index) in filteredInvoices" :key="index">
+          <tr v-for="invoice in filteredInvoices" :key="invoice.id">
             <td class="invoice-number">
-              {{ invoice["Número de Factura"] }}
+              {{ invoice.invoiceNumber }}
             </td>
-            <td>{{ invoice.Tipus }}</td>
+            <td>{{ invoice.type }}</td>
             <td class="client-name">
               <router-link
-                :to="getClientUrl(invoice.Client)"
+                :to="getClientUrl(invoice.client.id)"
                 class="client-link"
               >
-                {{ invoice.Client }}
+                {{ invoice.client.name }}
               </router-link>
             </td>
             <td class="invoice-description">
-              {{ invoice.Descripció }}
+              {{ invoice.description }}
             </td>
             <td class="invoice-amount">
-              {{ formatCurrency(invoice.Import) }}
+              {{ formatCurrency(invoice.amount) }}
             </td>
-            <td>{{ formatDate(invoice.Data) }}</td>
+            <td>{{ formatDate(invoice.dueDate) }}</td>
+            <td>
+              {{ new Date(invoice.createdAt).toLocaleDateString("es-ES") }}
+            </td>
             <td>
               <a
-                v-if="invoice.Link"
-                :href="invoice.Link"
+                v-if="invoice.link"
+                :href="invoice.link"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="invoice-link"
               >
                 Ver Factura
               </a>
-              <span v-else class="no-data">-</span>
             </td>
           </tr>
         </tbody>

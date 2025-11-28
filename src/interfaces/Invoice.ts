@@ -1,23 +1,28 @@
+import type { IClientReference } from "./Client";
+
 export interface IInvoiceList {
   invoices: IInvoice[];
 }
 
 export interface IInvoice {
-  "Número de Factura": string;
-  Tipus: string;
-  Client: string;
-  Descripció: string;
-  Import: number;
-  Data: string;
-  Link: string;
+  id: number;
+  invoiceNumber: string;
+  type: string;
+  description: string;
+  link: string;
+  amount: number;
+  dueDate: string;
+  createdAt: string;
+  updatedAt: string;
+  client: IClientReference;
 }
 
 export interface IManualInvoicePayload {
-  Client: string;
-  "Import (IVA inclòs)": number;
-  Concepte: string;
-  "Mètode pagament": string;
-  Venciment: string;
+  clientId: number;
+  amount: number;
+  description: string;
+  paymentMethod: string;
+  dueDate: string;
 }
 
 export interface ILastInvoiceNumber {

@@ -3,6 +3,7 @@ import type {
   IClientList,
   IClient,
   INewClientPayload,
+  IResponsibleWithClients,
 } from "@/interfaces/Client";
 import type {
   IInvoiceList,
@@ -26,10 +27,20 @@ class ApiService {
     });
   }
 
-  public async getClient(clientName: string): Promise<IClient> {
-    const encodedClientName = encodeURIComponent(clientName);
+  public async getClient(clientId: number): Promise<IClient> {
     return await this.request<IClient>(
-      `/viuelpadel/client?client=${encodedClientName}`,
+      `/viuelpadel/client?clientId=${clientId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async getResponsible(
+    responsibleId: number
+  ): Promise<IResponsibleWithClients> {
+    return await this.request<IResponsibleWithClients>(
+      `/viuelpadel/responsible?responsibleId=${responsibleId}`,
       {
         method: "GET",
       }
