@@ -4,6 +4,8 @@ import type {
   IClient,
   INewClientPayload,
   IResponsibleWithClients,
+  IResponsiblesList,
+  ICreateClientResponse,
 } from "@/interfaces/Client";
 import type {
   IInvoiceList,
@@ -47,6 +49,12 @@ class ApiService {
     );
   }
 
+  public async getResponsibles(): Promise<IResponsiblesList> {
+    return await this.request<IResponsiblesList>("/viuelpadel/responsibles", {
+      method: "GET",
+    });
+  }
+
   public async getInvoices(): Promise<IInvoiceList> {
     return await this.request<IInvoiceList>("/viuelpadel/invoices", {
       method: "GET",
@@ -77,14 +85,19 @@ class ApiService {
     );
   }
 
-  public async createClient(payload: INewClientPayload): Promise<unknown> {
-    return await this.request<unknown>("/viuelpadel/clients/new-client", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  public async createClient(
+    payload: INewClientPayload
+  ): Promise<ICreateClientResponse> {
+    return await this.request<ICreateClientResponse>(
+      "/viuelpadel/clients/new-client",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
   }
 
   public async editClient(payload: INewClientPayload): Promise<unknown> {

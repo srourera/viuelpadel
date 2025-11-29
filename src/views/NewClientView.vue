@@ -1,6 +1,9 @@
 <script lang="ts">
 import ApiService from "@/services/ApiService";
-import type { INewClientPayload } from "@/interfaces/Client";
+import type {
+  INewClientPayload,
+  IResponsibleListItem,
+} from "@/interfaces/Client";
 
 export default {
   name: "NewClientView",
@@ -8,28 +11,63 @@ export default {
     return {
       form: {
         name: "",
-        responsible_name: "",
+        responsibleId: undefined as number | undefined,
+        responsibleName: "",
         address1: "",
         address2: "",
         email: "",
         phone: "",
-        id_type: "",
-        id_value: "",
-        bank_client_reference: "",
-        bank_mandate_reference: "",
-        bank_mandate_signed_at: "",
+        idType: "",
+        idValue: "",
+        bankClientReference: "",
+        bankMandateReference: "",
+        bankMandateSignedAt: "",
         iban: "",
       } as INewClientPayload,
+      responsibles: [] as IResponsibleListItem[],
+      responsibleType: "existing" as "existing" | "new",
       loading: false,
+      loadingResponsibles: false,
       error: "",
       success: false,
     };
   },
+  async mounted() {
+    await this.fetchResponsibles();
+  },
+  watch: {
+    "form.name"(newValue: string) {
+      // Auto-rellenar referencias con el nombre
+      this.form.bankClientReference = newValue;
+      this.form.bankMandateReference = newValue;
+    },
+  },
   methods: {
+    async fetchResponsibles() {
+      try {
+        this.loadingResponsibles = true;
+        const response = await ApiService.getResponsibles();
+        this.responsibles = response.responsibles;
+      } catch (err) {
+        console.error("Error fetching responsibles:", err);
+      } finally {
+        this.loadingResponsibles = false;
+      }
+    },
     async submitForm() {
       // Validar campos requeridos básicos
       if (!this.form.name) {
         this.error = "Por favor, introduce el nombre del cliente.";
+        return;
+      }
+
+      // Validar responsable
+      if (this.responsibleType === "existing" && !this.form.responsibleId) {
+        this.error = "Por favor, selecciona un responsable existente.";
+        return;
+      }
+      if (this.responsibleType === "new" && !this.form.responsibleName) {
+        this.error = "Por favor, introduce el nombre del responsable.";
         return;
       }
 
@@ -39,7 +77,7 @@ export default {
 
       try {
         // Convertir fecha de dd/mm/aaaa a formato ISO si está presente
-        let formattedDate = this.form.bank_mandate_signed_at;
+        let formattedDate = this.form.bankMandateSignedAt;
         if (formattedDate) {
           const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
           if (dateRegex.test(formattedDate)) {
@@ -48,34 +86,56 @@ export default {
           }
         }
 
+        // Preparar payload: eliminar responsibleId o responsibleName según el tipo
         const payload: INewClientPayload = {
-          ...this.form,
-          bank_mandate_signed_at: formattedDate,
+          name: this.form.name,
+          address1: this.form.address1,
+          address2: this.form.address2,
+          email: this.form.email,
+          phone: this.form.phone.replace(/\s/g, ""), // Eliminar espacios del teléfono
+          idType: this.form.idType,
+          idValue: this.form.idValue,
+          bankClientReference: this.form.bankClientReference,
+          bankMandateReference: this.form.bankMandateReference,
+          bankMandateSignedAt: formattedDate,
+          iban: this.form.iban.replace(/\s/g, ""), // Eliminar espacios del IBAN
         };
 
-        await ApiService.createClient(payload);
+        // Agregar responsibleId o responsibleName según el tipo seleccionado
+        if (this.responsibleType === "existing" && this.form.responsibleId) {
+          payload.responsibleId = this.form.responsibleId;
+        } else if (
+          this.responsibleType === "new" &&
+          this.form.responsibleName
+        ) {
+          payload.responsibleName = this.form.responsibleName;
+        }
+
+        const response = await ApiService.createClient(payload);
 
         this.success = true;
         // Limpiar formulario
         this.form = {
           name: "",
-          responsible_name: "",
+          responsibleId: undefined,
+          responsibleName: "",
           address1: "",
           address2: "",
           email: "",
           phone: "",
-          id_type: "",
-          id_value: "",
-          bank_client_reference: "",
-          bank_mandate_reference: "",
-          bank_mandate_signed_at: "",
+          idType: "",
+          idValue: "",
+          bankClientReference: "",
+          bankMandateReference: "",
+          bankMandateSignedAt: "",
           iban: "",
         };
+        this.responsibleType = "existing";
 
-        // Redirigir después de 2 segundos
+        // Redirigir a la página del cliente recién creado después de 500 milisegundos
         setTimeout(() => {
-          location.href = "/clients";
-        }, 2000);
+          location.href = `/client/${response.id}`;
+        }, 500);
       } catch (err) {
         this.error = "Error al crear el cliente. Por favor, intenta de nuevo.";
         console.error("Error creating client:", err);
@@ -94,7 +154,49 @@ export default {
         value = value.substring(0, 5) + "/" + value.substring(5, 9);
       }
 
-      this.form.bank_mandate_signed_at = value;
+      this.form.bankMandateSignedAt = value;
+    },
+    formatPhoneInput(event: Event) {
+      const input = event.target as HTMLInputElement;
+      let value = input.value.replace(/\D/g, ""); // Solo números
+
+      // Limitar a 9 dígitos
+      if (value.length > 9) {
+        value = value.substring(0, 9);
+      }
+
+      // Formatear en grupos de 3 dígitos
+      if (value.length > 0) {
+        let formatted = "";
+        for (let i = 0; i < value.length; i += 3) {
+          if (i > 0) formatted += " ";
+          formatted += value.substring(i, i + 3);
+        }
+        value = formatted;
+      }
+
+      this.form.phone = value;
+    },
+    formatIbanInput(event: Event) {
+      const input = event.target as HTMLInputElement;
+      let value = input.value.replace(/\s/g, "").toUpperCase(); // Eliminar espacios y convertir a mayúsculas
+
+      // Limitar a 24 caracteres (IBAN español: 2 letras + 22 dígitos)
+      if (value.length > 24) {
+        value = value.substring(0, 24);
+      }
+
+      // Formatear IBAN en grupos de 4 caracteres
+      if (value.length > 0) {
+        let formatted = "";
+        for (let i = 0; i < value.length; i += 4) {
+          if (i > 0) formatted += " ";
+          formatted += value.substring(i, i + 4);
+        }
+        value = formatted;
+      }
+
+      this.form.iban = value;
     },
   },
 };
@@ -104,57 +206,89 @@ export default {
   <div class="new-client-view">
     <div class="new-client-container">
       <div class="new-client-header">
-        <h1 class="new-client-title">Nou client</h1>
-        <p class="new-client-subtitle">Creació de client</p>
+        <h1 class="new-client-title">Nuevo cliente</h1>
+        <p class="new-client-subtitle">Creación de cliente</p>
       </div>
 
       <form @submit.prevent="submitForm" class="new-client-form">
         <div class="form-group">
           <label for="client" class="form-label">
-            Client <span class="required">*</span>
+            Cliente <span class="required">*</span>
           </label>
           <input
             id="client"
             v-model="form.name"
             type="text"
             class="form-input"
-            placeholder="Nom del client"
+            placeholder="Nombre del cliente"
             required
           />
         </div>
 
         <div class="form-group">
-          <label for="nom-responsable" class="form-label">
-            Nom Responsable
-          </label>
+          <label for="responsable" class="form-label">Responsable</label>
+          <div class="switch-container">
+            <button
+              type="button"
+              :class="[
+                'switch-option',
+                { active: responsibleType === 'existing' },
+              ]"
+              @click="responsibleType = 'existing'"
+            >
+              Existente
+            </button>
+            <button
+              type="button"
+              :class="['switch-option', { active: responsibleType === 'new' }]"
+              @click="responsibleType = 'new'"
+            >
+              Nuevo
+            </button>
+          </div>
+          <select
+            v-if="responsibleType === 'existing'"
+            v-model="form.responsibleId"
+            class="form-input"
+            :disabled="loadingResponsibles"
+          >
+            <option value="" disabled>Selecciona un responsable</option>
+            <option
+              v-for="responsible in responsibles"
+              :key="responsible.id"
+              :value="responsible.id"
+            >
+              {{ responsible.name }}
+            </option>
+          </select>
           <input
-            id="nom-responsable"
-            v-model="form.responsible_name"
+            v-if="responsibleType === 'new'"
+            v-model="form.responsibleName"
             type="text"
             class="form-input"
-            placeholder="Nom del responsable"
+            placeholder="Nombre del responsable"
           />
         </div>
 
         <div class="form-group">
-          <label for="direccio1" class="form-label">Direcció 1</label>
+          <label for="direccio1" class="form-label">Dirección 1</label>
           <input
             id="direccio1"
             v-model="form.address1"
             type="text"
             class="form-input"
-            placeholder="Primera línia de direcció"
+            placeholder="Primera línea de dirección"
           />
         </div>
 
         <div class="form-group">
-          <label for="direccio2" class="form-label">Direcció 2</label>
+          <label for="direccio2" class="form-label">Dirección 2</label>
           <input
             id="direccio2"
             v-model="form.address2"
             type="text"
             class="form-input"
-            placeholder="Segona línia de direcció"
+            placeholder="Segunda línea de dirección"
           />
         </div>
 
@@ -170,72 +304,73 @@ export default {
         </div>
 
         <div class="form-group">
-          <label for="telefon" class="form-label">Telèfon</label>
+          <label for="telefon" class="form-label">Teléfono</label>
           <input
             id="telefon"
             v-model="form.phone"
+            @input="formatPhoneInput"
             type="tel"
             class="form-input"
-            placeholder="Telèfon de contacte"
+            placeholder="Teléfono de contacto"
           />
         </div>
 
         <div class="form-group">
           <label for="id-type" class="form-label">ID Type</label>
-          <input
-            id="id-type"
-            v-model="form.id_type"
-            type="text"
-            class="form-input"
-            placeholder="Tipus d'identificació"
-          />
+          <select id="id-type" v-model="form.idType" class="form-input">
+            <option value="" disabled>Selecciona un tipo</option>
+            <option value="DNI">DNI</option>
+            <option value="Pasaporte">Pasaporte</option>
+          </select>
         </div>
 
         <div class="form-group">
           <label for="id-value" class="form-label">ID Value</label>
           <input
             id="id-value"
-            v-model="form.id_value"
+            v-model="form.idValue"
             type="text"
             class="form-input"
-            placeholder="Valor de l'identificació"
+            placeholder="Valor de la identificación"
           />
         </div>
 
         <div class="form-group">
           <label for="referencia-client" class="form-label">
-            Referència Client
+            Referencia Cliente
           </label>
           <input
             id="referencia-client"
-            v-model="form.bank_client_reference"
+            v-model="form.bankClientReference"
             type="text"
             class="form-input"
-            placeholder="Referència del client"
+            placeholder="Referencia del cliente"
+            readonly
           />
         </div>
 
         <div class="form-group">
           <label for="referencia-mandat" class="form-label">
-            Referència Mandat
+            Referencia Mandato
           </label>
           <input
             id="referencia-mandat"
-            v-model="form.bank_mandate_reference"
+            v-model="form.bankMandateReference"
             type="text"
             class="form-input"
-            placeholder="Referència del mandat"
+            placeholder="Referencia del mandato"
+            readonly
           />
         </div>
 
         <div class="form-group">
           <label for="data-firma-mandat" class="form-label">
-            Data Firma Mandat
+            Fecha Firma Mandato
           </label>
           <div class="date-input-wrapper">
             <input
               id="data-firma-mandat"
-              v-model="form.bank_mandate_signed_at"
+              v-model="form.bankMandateSignedAt"
               @input="formatDateInput"
               type="text"
               class="form-input date-input"
@@ -251,9 +386,10 @@ export default {
           <input
             id="iban"
             v-model="form.iban"
+            @input="formatIbanInput"
             type="text"
             class="form-input"
-            placeholder="IBAN del compte bancari"
+            placeholder="IBAN de la cuenta bancaria"
           />
         </div>
 
@@ -262,12 +398,12 @@ export default {
         </div>
 
         <div v-if="success" class="success-message">
-          Client creat correctament. Redirigint...
+          Cliente creado correctamente. Redirigiendo...
         </div>
 
         <button type="submit" class="submit-button" :disabled="loading">
-          <span v-if="loading">Creant...</span>
-          <span v-else>Crear Client</span>
+          <span v-if="loading">Creando...</span>
+          <span v-else>Crear Cliente</span>
         </button>
       </form>
     </div>
@@ -346,6 +482,44 @@ export default {
 
 .form-input::placeholder {
   color: #999;
+}
+
+.form-input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.switch-container {
+  display: flex;
+  gap: 0.25rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 0.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.switch-option {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  color: #666666;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.switch-option:hover {
+  background-color: rgba(205, 220, 57, 0.1);
+}
+
+.switch-option.active {
+  background-color: #cddc39;
+  color: #292929;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .date-input-wrapper {

@@ -102,10 +102,10 @@ export default {
           venciment: "",
         };
 
-        // Redirigir después de 2 segundos
+        // Redirigir después de 500 milisegundos
         setTimeout(() => {
           location.href = "/invoices";
-        }, 2000);
+        }, 500);
       } catch (err) {
         this.error =
           "Error al generar la factura. Por favor, intenta de nuevo.";

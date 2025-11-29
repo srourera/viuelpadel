@@ -48,17 +48,34 @@ export interface IClient {
   responsible: IResponsible;
 }
 
-export interface INewClientPayload {
+export interface IResponsibleListItem {
+  id: number;
   name: string;
-  responsible_name?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IResponsiblesList {
+  responsibles: IResponsibleListItem[];
+}
+
+export interface INewClientPayload {
+  id?: number;
+  name: string;
+  responsibleId?: number;
+  responsibleName?: string;
   address1: string;
   address2: string;
   email: string;
   phone: string;
-  id_type: string;
-  id_value: string;
-  bank_client_reference: string;
-  bank_mandate_reference: string;
-  bank_mandate_signed_at: string;
+  idType: string;
+  idValue: string;
+  bankClientReference: string;
+  bankMandateReference: string;
+  bankMandateSignedAt: string;
   iban: string;
+}
+
+export interface ICreateClientResponse {
+  id: number;
 }
