@@ -97,7 +97,7 @@ export default {
         }).length;
 
         months.push({
-          month: monthNames[date.getMonth()],
+          month: monthNames[date.getMonth()] || "",
           year,
           revenue,
           count,
@@ -107,7 +107,10 @@ export default {
       return months;
     },
     topClients(): TopClient[] {
-      const clientRevenue = new Map<string, { revenue: number; count: number }>();
+      const clientRevenue = new Map<
+        string,
+        { revenue: number; count: number }
+      >();
 
       this.invoices.forEach((inv) => {
         const client = inv.client.name;
@@ -176,9 +179,7 @@ export default {
         .filter((inv) => {
           const date = this.parseDate(inv.dueDate);
           return (
-            date &&
-            date.getFullYear() === year &&
-            date.getMonth() + 1 === month
+            date && date.getFullYear() === year && date.getMonth() + 1 === month
           );
         })
         .reduce((sum, inv) => sum + (inv.amount || 0), 0);
@@ -234,7 +235,9 @@ export default {
         <div class="stat-card">
           <div class="stat-icon">💰</div>
           <div class="stat-content">
-            <div class="stat-value">{{ formatCurrency(currentMonthRevenue) }}</div>
+            <div class="stat-value">
+              {{ formatCurrency(currentMonthRevenue) }}
+            </div>
             <div class="stat-label">Facturación Mes Actual</div>
           </div>
         </div>
@@ -242,7 +245,9 @@ export default {
         <div class="stat-card">
           <div class="stat-icon">📊</div>
           <div class="stat-content">
-            <div class="stat-value">{{ formatCurrency(currentYearRevenue) }}</div>
+            <div class="stat-value">
+              {{ formatCurrency(currentYearRevenue) }}
+            </div>
             <div class="stat-label">Facturación Año Actual</div>
           </div>
         </div>
@@ -276,8 +281,12 @@ export default {
               class="month-bar"
             >
               <div class="month-info">
-                <span class="month-name">{{ month.month }} {{ month.year }}</span>
-                <span class="month-value">{{ formatCurrency(month.revenue) }}</span>
+                <span class="month-name"
+                  >{{ month.month }} {{ month.year }}</span
+                >
+                <span class="month-value">{{
+                  formatCurrency(month.revenue)
+                }}</span>
               </div>
               <div class="bar-container">
                 <div
@@ -302,10 +311,7 @@ export default {
         <div class="chart-card">
           <h2 class="chart-title">Top 5 Clientes por Facturación</h2>
           <div class="chart-content">
-            <div
-              v-if="topClients.length === 0"
-              class="empty-state-small"
-            >
+            <div v-if="topClients.length === 0" class="empty-state-small">
               <p>No hay datos disponibles</p>
             </div>
             <router-link

@@ -7,8 +7,9 @@ import EditClientView from "@/views/EditClientView.vue";
 import InvoicesView from "@/views/InvoicesView.vue";
 import ManualInvoiceView from "@/views/ManualInvoiceView.vue";
 import ResponsableView from "@/views/ResponsableView.vue";
-import RemesasView from "@/views/RemesasView.vue";
-import RemesaEscolaViuElPadelView from "@/views/RemesaEscolaViuElPadelView.vue";
+import RemittanceTypesView from "@/views/RemittanceTypesView.vue";
+import RemittanceTypeView from "@/views/RemittanceTypeView.vue";
+import RemittanceView from "@/views/RemittanceView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,14 +55,19 @@ const router = createRouter({
       component: ResponsableView,
     },
     {
-      path: "/remesas",
-      name: "remesas",
-      component: RemesasView,
+      path: "/remittance-types",
+      name: "remittance-types",
+      component: RemittanceTypesView,
     },
     {
-      path: "/remesa/escola-viu-el-padel",
-      name: "remesa-escola-viu-el-padel",
-      component: RemesaEscolaViuElPadelView,
+      path: "/remittance-type/:id",
+      name: "remittance-type",
+      component: RemittanceTypeView,
+    },
+    {
+      path: "/remittance-type/:id/remittance/:remittanceId",
+      name: "remittance",
+      component: RemittanceView,
     },
   ],
 });

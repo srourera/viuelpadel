@@ -49,7 +49,7 @@ export default {
         <span class="nav-text" v-if="!isCollapsed">Facturas</span>
       </router-link>
       <router-link
-        to="/remesas"
+        to="/remittance-types"
         class="nav-item"
         active-class="active"
         :title="isCollapsed ? 'Remesas' : ''"

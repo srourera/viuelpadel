@@ -12,6 +12,13 @@ import type {
   IManualInvoicePayload,
   ILastInvoiceNumber,
 } from "@/interfaces/Invoice";
+import type {
+  IRemittanceTypesList,
+  IRemittanceType,
+  IRemittancesList,
+  IRemittance,
+  IRemittanceLinesList,
+} from "@/interfaces/Remittance";
 
 class ApiService {
   private readonly BASE_URL = "https://n8n.ridaflows.com/webhook";
@@ -121,13 +128,110 @@ class ApiService {
   }
 
   public async deactivateClient(clientId: number): Promise<unknown> {
-    return await this.request<unknown>("/viuelpadel/clients/deactivate-client", {
+    return await this.request<unknown>(
+      "/viuelpadel/clients/deactivate-client",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: clientId }),
+      }
+    );
+  }
+
+  public async getRemittanceTypes(): Promise<IRemittanceTypesList> {
+    return await this.request<IRemittanceTypesList>(
+      "/viuelpadel/remittance-types",
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async getRemittanceType(
+    remittanceTypeId: number
+  ): Promise<IRemittanceType> {
+    return await this.request<IRemittanceType>(
+      `/viuelpadel/remittance-type?remittanceTypeId=${remittanceTypeId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async getRemittances(
+    remittanceTypeId: number
+  ): Promise<IRemittancesList> {
+    return await this.request<IRemittancesList>(
+      `/viuelpadel/remittances?remittanceTypeId=${remittanceTypeId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async getRemittance(remittanceId: number): Promise<IRemittance> {
+    return await this.request<IRemittance>(
+      `/viuelpadel/remittance?remittanceId=${remittanceId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async validateRemittance(remittanceId: number): Promise<unknown> {
+    return await this.request<unknown>("/viuelpadel/remittance/validate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: clientId }),
+      body: JSON.stringify({ id: remittanceId }),
     });
+  }
+
+  public async getRemittanceLines(
+    remittanceId: number
+  ): Promise<IRemittanceLinesList> {
+    return await this.request<IRemittanceLinesList>(
+      `/viuelpadel/remittance-lines?remittanceId=${remittanceId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async updateRemittanceLine(
+    id: number,
+    amountMinUnit: number
+  ): Promise<unknown> {
+    return await this.request<unknown>(
+      "/viuelpadel/remittance/update-remittance-line",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, amountMinUnit }),
+      }
+    );
+  }
+
+  public async addRemittanceLine(
+    remittanceId: number,
+    clientId: number,
+    amountMinUnit: number
+  ): Promise<unknown> {
+    return await this.request<unknown>(
+      "/viuelpadel/remittance/add-remittance-line",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ remittanceId, clientId, amountMinUnit }),
+      }
+    );
   }
 
   public clearCache(): void {
