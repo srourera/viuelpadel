@@ -6,6 +6,7 @@ export interface IResponsible {
 export interface IClientReference {
   id: number;
   name: string;
+  isActive: boolean;
 }
 
 export interface IResponsibleWithClients {
@@ -28,6 +29,7 @@ export interface IClientListItem {
   email: string;
   phone: string;
   responsible: IResponsible;
+  isActive: boolean;
 }
 
 export interface IClient {
@@ -46,6 +48,7 @@ export interface IClient {
   createdAt: string;
   updatedAt: string;
   responsible: IResponsible;
+  isActive: boolean;
 }
 
 export interface IResponsibleListItem {

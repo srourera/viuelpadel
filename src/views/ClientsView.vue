@@ -108,6 +108,7 @@ export default {
             <th>Dirección</th>
             <th>Email</th>
             <th>Teléfono</th>
+            <th class="centered-column">Activo</th>
           </tr>
         </thead>
         <tbody>
@@ -156,6 +157,11 @@ export default {
                 {{ client.phone }}
               </a>
               <span v-else class="no-data">-</span>
+            </td>
+            <td class="centered-column">
+              <span class="active-status">
+                {{ client.isActive ? "🟢" : "⚪️" }}
+              </span>
             </td>
           </tr>
         </tbody>
@@ -395,6 +401,10 @@ export default {
 .no-data {
   color: #999;
   font-style: italic;
+}
+
+.centered-column {
+  text-align: center;
 }
 
 @media (max-width: 768px) {

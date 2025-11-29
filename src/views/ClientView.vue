@@ -14,6 +14,7 @@ export default {
       loading: true,
       error: "",
       clientName: "",
+      togglingStatus: false,
     };
   },
   async mounted() {
@@ -60,6 +61,29 @@ export default {
         return dateString;
       }
     },
+    async toggleClientStatus() {
+      if (!this.client || this.togglingStatus) return;
+
+      try {
+        this.togglingStatus = true;
+        this.error = "";
+
+        if (this.client.isActive) {
+          await ApiService.deactivateClient(this.client.id);
+        } else {
+          await ApiService.activateClient(this.client.id);
+        }
+
+        // Limpiar caché y recargar cliente
+        ApiService.clearCache();
+        await this.fetchClient();
+      } catch (err) {
+        this.error = "Error al cambiar el estado del cliente. Por favor, intenta de nuevo.";
+        console.error("Error toggling client status:", err);
+      } finally {
+        this.togglingStatus = false;
+      }
+    },
   },
   computed: {
     clientIds(): number[] {
@@ -74,13 +98,25 @@ export default {
   <div class="client-view">
     <div class="client-header">
       <h1 class="client-title">{{ clientName || "Cargando..." }}</h1>
-      <button
-        v-if="client"
-        @click="goToEditClient"
-        class="edit-client-button"
-      >
-        Editar
-      </button>
+      <div class="header-actions">
+        <button
+          v-if="client"
+          @click="toggleClientStatus"
+          :disabled="togglingStatus"
+          class="toggle-status-button"
+        >
+          <span v-if="togglingStatus">Procesando...</span>
+          <span v-else-if="client.isActive">Desactivar cliente</span>
+          <span v-else>Activar cliente</span>
+        </button>
+        <button
+          v-if="client"
+          @click="goToEditClient"
+          class="edit-client-button"
+        >
+          Editar
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -112,6 +148,14 @@ export default {
                 {{ client.responsible.name }}
               </router-link>
               <span v-else class="no-data">-</span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Estado:</span>
+            <span class="detail-value">
+              <span class="active-status">
+                {{ client.isActive ? "🟢 Activo" : "⚪️ Inactivo" }}
+              </span>
             </span>
           </div>
         </div>
@@ -225,6 +269,14 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .back-link {
@@ -271,6 +323,34 @@ export default {
   background-color: #b8c837;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(205, 220, 57, 0.3);
+}
+
+.toggle-status-button {
+  padding: 0.625rem 1.5rem;
+  background-color: #fff;
+  color: #292929;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.toggle-status-button:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #cddc39;
+}
+
+.toggle-status-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.active-status {
+  font-size: 1rem;
 }
 
 .loading-state,

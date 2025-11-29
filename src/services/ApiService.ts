@@ -110,6 +110,26 @@ class ApiService {
     });
   }
 
+  public async activateClient(clientId: number): Promise<unknown> {
+    return await this.request<unknown>("/viuelpadel/clients/activate-client", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: clientId }),
+    });
+  }
+
+  public async deactivateClient(clientId: number): Promise<unknown> {
+    return await this.request<unknown>("/viuelpadel/clients/deactivate-client", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: clientId }),
+    });
+  }
+
   public clearCache(): void {
     this.cache.clear();
   }

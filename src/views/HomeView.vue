@@ -31,6 +31,9 @@ export default {
     totalClients(): number {
       return this.clients.length;
     },
+    activeClients(): number {
+      return this.clients.filter((client) => client.isActive).length;
+    },
     currentMonthRevenue(): number {
       const now = new Date();
       const currentMonth = now.getMonth() + 1;
@@ -221,8 +224,10 @@ export default {
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-content">
-            <div class="stat-value">{{ totalClients }}</div>
-            <div class="stat-label">Total Clientes</div>
+            <div class="stat-value">{{ activeClients }}</div>
+            <div class="stat-label">
+              {{ activeClients }}/{{ totalClients }} Clientes Activos
+            </div>
           </div>
         </div>
 

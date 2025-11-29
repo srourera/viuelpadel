@@ -82,7 +82,7 @@ export default {
               :to="getClientUrl(client.id)"
               class="client-item"
             >
-              {{ client.name }}
+              {{ client.name }} {{ client.isActive ? "🟢" : "⚪️" }}
             </router-link>
           </div>
         </div>
