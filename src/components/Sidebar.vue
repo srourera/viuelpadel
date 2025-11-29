@@ -1,4 +1,8 @@
 <script lang="ts">
+import { computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { getPreviousRoute } from "../router/index";
+
 export default {
   name: "AppSidebar",
   props: {
@@ -7,18 +11,68 @@ export default {
       default: false,
     },
   },
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+
+    const isMainPage = computed(() => {
+      return route.meta.isMainPage === true;
+    });
+
+    const handleBack = () => {
+      // Intentar usar el historial del navegador primero (más confiable)
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
+      // Si no hay historial del navegador, usar nuestro historial interno
+      const previousRouteFromHistory = getPreviousRoute(route.fullPath);
+
+      if (previousRouteFromHistory) {
+        router.push(previousRouteFromHistory);
+        return;
+      }
+
+      // Si no hay historial, usar el fallback definido en los metadatos
+      const fallbackRoute = route.meta.fallbackRoute as string | undefined;
+      if (fallbackRoute) {
+        router.push(fallbackRoute);
+      } else {
+        // Fallback por defecto si no hay uno definido
+        router.push("/");
+      }
+    };
+
+    return {
+      isMainPage,
+      handleBack,
+    };
+  },
 };
 </script>
 
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
     <div class="sidebar-header">
+      <!-- Logo: solo se muestra si es página principal -->
       <img
+        v-if="isMainPage"
         src="https://res.cloudinary.com/srourera/image/upload/t_700/v1762816426/ANAGRAMA_JUGADOR_VIU_EL_PADEL_jsbwuo.png"
         alt="Viu el Padel Logo"
         class="sidebar-logo"
         :class="{ 'sidebar-logo-collapsed': isCollapsed }"
       />
+      <!-- Botón Volver: se muestra si NO es página principal -->
+      <button
+        v-else
+        @click="handleBack"
+        class="back-button"
+        :title="isCollapsed ? 'Volver' : ''"
+      >
+        <span class="back-icon">←</span>
+        <span class="back-text" v-if="!isCollapsed">Volver</span>
+      </button>
     </div>
     <nav class="sidebar-nav">
       <router-link
@@ -117,6 +171,47 @@ export default {
   justify-content: center;
   border-radius: 4px;
   background-color: #f5f5f5;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #666666;
+  font-size: 0.9rem;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  min-height: 50px;
+}
+
+.back-button:hover {
+  background-color: #f5f5f5;
+  border-color: #cddc39;
+  color: #292929;
+}
+
+.sidebar.collapsed .back-button {
+  padding: 0.625rem;
+  width: 40px;
+  min-height: 40px;
+}
+
+.back-icon {
+  font-size: 1.5rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.back-text {
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .sidebar-nav {

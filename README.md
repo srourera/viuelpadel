@@ -1,7 +1,7 @@
 TODO:
 
-- Remittance Client config
-- Generación de remesa automática con flujo
-- Poder añadir RemittanceLine de verdad
-- Poder actualizar RemittanceLine de verdad
-- Validar remesa i flujo (controlar 0s)
+- Remittance Client config (front+back)
+- Generación de remesa automática con flujo (back)
+- Poder añadir RemittanceLine de verdad (back)
+- Poder actualizar RemittanceLine de verdad (back)
+- Validar remesa i flujo (controlar 0s) (back)
