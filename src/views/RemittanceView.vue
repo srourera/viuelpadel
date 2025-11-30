@@ -397,6 +397,18 @@ export default {
                 }}</span>
               </span>
             </div>
+            <div
+              v-if="remittance.status === 'processing_validation'"
+              class="processing-alert"
+            >
+              <span class="alert-icon">🕒</span>
+              <div class="alert-content">
+                <p class="alert-text">
+                  El proceso de validación puede tardar varios minutos. Te
+                  llegará un correo electrónico en cuanto haya terminado.
+                </p>
+              </div>
+            </div>
             <div v-if="remittance.createdAt" class="detail-row">
               <span class="detail-label">Creación:</span>
               <span class="detail-value">{{
@@ -1251,6 +1263,35 @@ export default {
 
 .status-label {
   font-size: 0.9rem;
+}
+
+.processing-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  background-color: #e8f5e9;
+  border-left: 3px solid #4caf50;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #2e7d32;
+  line-height: 1.4;
 }
 
 @media (min-width: 768px) {
