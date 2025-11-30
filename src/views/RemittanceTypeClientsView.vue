@@ -84,9 +84,8 @@ export default {
       try {
         this.loadingRemittanceType = true;
         const remittanceTypeId = this.getRemittanceTypeIdFromRoute();
-        this.remittanceType = await ApiService.getRemittanceType(
-          remittanceTypeId
-        );
+        this.remittanceType =
+          await ApiService.getRemittanceType(remittanceTypeId);
       } catch (err) {
         this.error =
           "Error al cargar la información del tipo de remesa. Por favor, intenta de nuevo.";
@@ -296,10 +295,7 @@ export default {
               class="search-input"
             />
           </div>
-          <button
-            @click="openAddClientModal"
-            class="add-client-button"
-          >
+          <button @click="openAddClientModal" class="add-client-button">
             + Añadir cliente
           </button>
         </div>
@@ -316,10 +312,7 @@ export default {
           </button>
         </div>
 
-        <div
-          v-else-if="remittanceTypeClients.length === 0"
-          class="empty-state"
-        >
+        <div v-else-if="remittanceTypeClients.length === 0" class="empty-state">
           <p>No hay clientes disponibles.</p>
         </div>
 
@@ -351,9 +344,7 @@ export default {
                     >
                       {{ client.client.name }}
                     </router-link>
-                    <span
-                      v-if="!client.client.isActive"
-                      class="inactive-badge"
+                    <span v-if="!client.client.isActive" class="inactive-badge"
                       >⚪️</span
                     >
                   </div>
@@ -412,8 +403,8 @@ export default {
                   loadingClientsList
                     ? "Cargando clientes..."
                     : availableClients.length === 0
-                    ? "No hay clientes disponibles"
-                    : "Selecciona un cliente"
+                      ? "No hay clientes disponibles"
+                      : "Selecciona un cliente"
                 }}
               </option>
               <option
@@ -451,7 +442,11 @@ export default {
             >
               Cancelar
             </button>
-            <button type="submit" class="submit-button" :disabled="addingClient">
+            <button
+              type="submit"
+              class="submit-button"
+              :disabled="addingClient"
+            >
               <span v-if="addingClient">Añadiendo...</span>
               <span v-else>Añadir</span>
             </button>
@@ -967,4 +962,3 @@ export default {
   cursor: not-allowed;
 }
 </style>
-
