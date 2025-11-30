@@ -21,6 +21,10 @@ export default {
       type: Array as () => number[],
       default: () => [],
     },
+    onlyFromRemittanceId: {
+      type: Number,
+      default: null,
+    },
   },
   data() {
     return {
@@ -51,6 +55,14 @@ export default {
           return this.onlyFromClientIds.includes(invoice.client.id);
         });
       }
+      if (
+        this.onlyFromRemittanceId !== null &&
+        this.onlyFromRemittanceId !== undefined
+      ) {
+        invoicesToCheck = this.invoices.filter((invoice) => {
+          return invoice.remittanceId === this.onlyFromRemittanceId;
+        });
+      }
 
       invoicesToCheck.forEach((invoice) => {
         if (invoice.type) {
@@ -71,6 +83,14 @@ export default {
       if (this.onlyFromClientIds.length > 0) {
         filtered = filtered.filter((invoice) => {
           return this.onlyFromClientIds.includes(invoice.client.id);
+        });
+      }
+      if (
+        this.onlyFromRemittanceId !== null &&
+        this.onlyFromRemittanceId !== undefined
+      ) {
+        filtered = filtered.filter((invoice) => {
+          return invoice.remittanceId === this.onlyFromRemittanceId;
         });
       }
 
@@ -118,7 +138,15 @@ export default {
         }
       }
 
-      return filtered;
+      // Eliminar duplicados finales por ID (segunda capa de seguridad)
+      const uniqueFilteredMap = new Map<number, IInvoice>();
+      filtered.forEach((invoice) => {
+        if (!uniqueFilteredMap.has(invoice.id)) {
+          uniqueFilteredMap.set(invoice.id, invoice);
+        }
+      });
+
+      return Array.from(uniqueFilteredMap.values());
     },
   },
   methods: {
@@ -127,7 +155,14 @@ export default {
         this.loading = true;
         this.error = "";
         const response = await ApiService.getInvoices();
-        this.invoices = response.invoices;
+        // Eliminar duplicados por ID
+        const uniqueInvoicesMap = new Map<number, IInvoice>();
+        response.invoices.forEach((invoice) => {
+          if (!uniqueInvoicesMap.has(invoice.id)) {
+            uniqueInvoicesMap.set(invoice.id, invoice);
+          }
+        });
+        this.invoices = Array.from(uniqueInvoicesMap.values());
       } catch (err) {
         this.error =
           "Error al cargar las facturas. Por favor, intenta de nuevo.";

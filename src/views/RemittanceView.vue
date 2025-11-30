@@ -6,9 +6,13 @@ import type {
   IRemittanceType,
 } from "@/interfaces/Remittance";
 import type { IClientListItem } from "@/interfaces/Client";
+import InvoiceList from "@/components/InvoiceList.vue";
 
 export default {
   name: "RemittanceView",
+  components: {
+    InvoiceList,
+  },
   data() {
     return {
       remittance: null as IRemittance | null,
@@ -114,10 +118,17 @@ export default {
       }
     },
     getStatusLabel(status: string): string {
-      return status === "validated" ? "Validada" : "Pendiente validar";
+      if (status === "validated") return "Validada";
+      if (status === "processing_validation") return "Procesando validación";
+      return "Pendiente validar";
     },
     getStatusIcon(status: string): string {
-      return status === "validated" ? "✅" : "🕒";
+      if (status === "validated") return "✅";
+      if (status === "processing_validation") return "🕒";
+      return "⏳";
+    },
+    isReadOnlyStatus(status: string): boolean {
+      return status === "validated" || status === "processing_validation";
     },
     formatMonthYear(month: number, year: number): string {
       const monthNames = [
@@ -372,7 +383,9 @@ export default {
               <span
                 class="detail-value status-badge"
                 :class="{
-                  'status-validated': remittance.status === 'validated',
+                  'status-validated':
+                    remittance.status === 'validated' ||
+                    remittance.status === 'processing_validation',
                   'status-pending': remittance.status === 'pending',
                 }"
               >
@@ -385,7 +398,7 @@ export default {
               </span>
             </div>
             <div v-if="remittance.createdAt" class="detail-row">
-              <span class="detail-label">Fecha de creación:</span>
+              <span class="detail-label">Creación:</span>
               <span class="detail-value">{{
                 formatDate(remittance.createdAt)
               }}</span>
@@ -394,10 +407,26 @@ export default {
               v-if="remittance.validatedAt && remittance.status === 'validated'"
               class="detail-row"
             >
-              <span class="detail-label">Fecha de validación:</span>
+              <span class="detail-label">Validación:</span>
               <span class="detail-value">{{
                 formatDate(remittance.validatedAt)
               }}</span>
+            </div>
+            <div
+              v-if="remittance.status === 'validated' && remittance.fileUrl"
+              class="detail-row"
+            >
+              <span class="detail-label">Fichero:</span>
+              <span class="detail-value">
+                <a
+                  :href="remittance.fileUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="file-link"
+                >
+                  📄 Fichero de la remesa
+                </a>
+              </span>
             </div>
           </div>
         </div>
@@ -471,7 +500,7 @@ export default {
                 </td>
                 <td class="amount-cell">
                   <span
-                    v-if="remittance?.status === 'validated'"
+                    v-if="isReadOnlyStatus(remittance?.status || '')"
                     class="amount-text"
                   >
                     {{ formatCurrency(line.amountMinUnit) }}
@@ -497,6 +526,17 @@ export default {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Listado de facturas (solo cuando está validada) -->
+      <div v-if="remittance.status === 'validated'" class="invoices-section">
+        <div class="invoices-header">
+          <h2 class="section-title">Facturas de la Remesa</h2>
+        </div>
+        <InvoiceList
+          :only-from-remittance-id="remittance.id"
+          :show-title="false"
+        />
       </div>
     </div>
 
@@ -760,12 +800,22 @@ export default {
 
 .remittance-lines-section {
   width: 100%;
+  margin-bottom: 2rem;
 }
 
 .remittance-lines-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.invoices-section {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.invoices-header {
   margin-bottom: 1.5rem;
 }
 
@@ -1157,6 +1207,21 @@ export default {
 .detail-value {
   font-size: 1rem;
   color: #292929;
+}
+
+.file-link {
+  color: #cddc39;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.file-link:hover {
+  color: #b8c837;
+  text-decoration: underline;
 }
 
 .status-badge {

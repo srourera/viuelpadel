@@ -56,10 +56,14 @@ export default {
       return `/remittance-type/${remittanceTypeId}/remittance/${remittanceId}`;
     },
     getStatusLabel(status: string): string {
-      return status === "validated" ? "Validada" : "Pendiente";
+      if (status === "validated") return "Validada";
+      if (status === "processing_validation") return "Procesando validación";
+      return "Pendiente";
     },
     getStatusIcon(status: string): string {
-      return status === "validated" ? "✅" : "⏳";
+      if (status === "validated") return "✅";
+      if (status === "processing_validation") return "🕒";
+      return "⏳";
     },
     formatMonthYear(month: number, year: number): string {
       const monthNames = [
@@ -149,7 +153,9 @@ export default {
                 <div
                   class="remittance-status"
                   :class="{
-                    'status-validated': remittance.status === 'validated',
+                    'status-validated':
+                      remittance.status === 'validated' ||
+                      remittance.status === 'processing_validation',
                     'status-pending': remittance.status === 'pending',
                   }"
                 >

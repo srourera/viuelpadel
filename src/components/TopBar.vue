@@ -21,7 +21,7 @@ export default {
   <header class="topbar" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
     <div class="topbar-content">
       <div class="topbar-left">
-        <h1 class="topbar-title">Panel de Administración</h1>
+        <h1 class="topbar-title">Administración de Viu el Pàdel</h1>
       </div>
       <div class="topbar-right">
         <button @click="handleLogout" class="logout-button">

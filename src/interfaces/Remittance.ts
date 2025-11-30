@@ -11,12 +11,13 @@ export interface IRemittanceTypesList {
 
 export interface IRemittance {
   id: number;
-  status: "validated" | "pending";
+  status: "validated" | "pending" | "processing_validation";
   month: number;
   year: number;
   remittanceTypeId?: number;
   createdAt?: string;
   validatedAt?: string | null;
+  fileUrl?: string | null;
 }
 
 export interface IRemittancesList {

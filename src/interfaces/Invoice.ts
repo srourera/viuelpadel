@@ -15,6 +15,7 @@ export interface IInvoice {
   createdAt: string;
   updatedAt: string;
   client: IClientReference;
+  remittanceId?: number | null;
 }
 
 export interface IManualInvoicePayload {
