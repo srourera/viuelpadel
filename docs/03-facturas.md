@@ -36,9 +36,8 @@
 
 - **Título**: "Facturas" (izquierda)
 - **Información adicional**: "Último número de factura: [número]" (debajo del título, solo si existe)
-- **Botón "＋ Factura manual"**: Botón verde (#cddc39) en la parte superior derecha
+- **Botón "＋ Factura manual"**: Botón verde en la parte superior derecha
   - Al hacer clic: Navega a `/invoices/manual`
-  - Color hover: #b8c837
   - En móviles: Ocupa el ancho completo
 
 ### Filtros
@@ -69,7 +68,7 @@
 
 4. **Botón "Limpiar filtros"**:
    - Solo visible si hay algún filtro activo
-   - Color: Fondo gris claro (#f5f5f5), borde gris
+   - Color: Fondo gris claro, borde gris
    - Al hacer clic: Limpia todos los filtros
 
 ### Tabla de Facturas
@@ -86,15 +85,17 @@
 8. **Link**: Enlace para ver la factura
    - Solo visible si existe el campo `link`
    - Texto: "Ver Factura"
-   - Color: Verde (#cddc39)
+   - Color: Verde
    - Abre en nueva pestaña
 
 **Estados de la tabla**:
+
 - **Cargando**: Spinner y mensaje "Cargando facturas..."
 - **Error**: Mensaje de error y botón "Reintentar"
 - **Vacío**: "No hay facturas disponibles" o "No se encontraron facturas que coincidan con la búsqueda"
 
 **Comportamiento**:
+
 - Las filas tienen hover effect (fondo #f9f9f9)
 - La tabla tiene scroll horizontal en pantallas pequeñas
 - Se eliminan duplicados automáticamente por ID
@@ -108,47 +109,45 @@
 **Título**: "Nova factura manual"
 **Subtítulo**: "Generació de factura manual"
 
-**Campos obligatorios** (marcados con asterisco rojo *):
+**Campos obligatorios** (marcados con asterisco rojo \*):
 
-1. **Client** (*): Dropdown
+1. **Client** (\*): Dropdown
    - Muestra lista de todos los clientes disponibles
    - Placeholder: "Selecciona un client" o "Carregant clients..." si está cargando
    - Se deshabilita mientras carga la lista
 
-2. **Import (IVA inclòs)** (*): Input numérico
-   - Tipo: number
-   - Step: 0.01 (permite decimales)
+2. **Import (IVA inclòs)** (\*): Input numérico
+   - Permite decimales
    - Mínimo: 0
    - Placeholder: "0.00"
    - Representa el importe total con IVA incluido
 
-3. **Concepte** (*): Input de texto
+3. **Concepte** (\*): Input de texto
    - Placeholder: "Descripció del concepte"
    - Descripción del concepto de la factura
 
-4. **Mètode pagament** (*): Radio buttons
+4. **Mètode pagament** (\*): Radio buttons
    - Dos opciones:
      - "Gir bancari" (Giro bancario)
      - "Transferència" (Transferencia)
    - Solo se puede seleccionar una opción
-   - Color de selección: Verde (#cddc39)
+   - Color de selección: Verde
 
-5. **Venciment** (*): Input de texto con icono 📅
+5. **Venciment** (\*): Input de texto con icono 📅
    - Formato: dd/mm/aaaa
-   - Se formatea automáticamente mientras se escribe
-   - Máximo 10 caracteres
    - Placeholder: "dd/mm/aaaa"
 
 ### Validaciones
 
 **Validaciones del formulario**:
+
 - Todos los campos obligatorios deben estar completos
 - El importe debe ser un número válido mayor que 0
 - La fecha debe tener formato válido dd/mm/aaaa
-- Se valida que la fecha tenga el formato correcto con regex
 
 **Mensajes de error**:
-- Se muestran en rojo (#d32f2f) dentro de un contenedor con fondo rosa claro (#ffebee)
+
+- Se muestran en rojo dentro de un contenedor con fondo rosa claro
 - Aparecen arriba del botón de envío
 - Mensajes posibles:
   - "Por favor, completa todos los campos requeridos."
@@ -179,7 +178,7 @@
 ### Botón de Envío
 
 - **Texto**: "Generar Factura" (normal) / "Generant..." (cargando)
-- **Color**: Verde (#cddc39)
+- **Color**: Verde
 - **Estado**: Se deshabilita durante el envío
 - **Ancho**: 100% del contenedor
 
@@ -257,4 +256,3 @@
 - Si una factura tiene un `link`, se muestra el botón "Ver Factura"
 - El enlace abre en nueva pestaña
 - El link apunta generalmente a un PDF de la factura
-

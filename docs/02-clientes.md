@@ -10,14 +10,13 @@
 - **Responsable**: Persona responsable del cliente
   - Puede ser un responsable existente (con ID)
   - O un responsable nuevo (solo con nombre)
-  - El responsable tiene: ID, nombre, fecha de creación, fecha de actualización
 
 ### Información de Contacto
 
 - **Dirección 1**: Primera línea de dirección (obligatorio)
 - **Dirección 2**: Segunda línea de dirección (obligatorio)
 - **Email**: Dirección de correo electrónico (obligatorio, formato email)
-- **Teléfono**: Número de teléfono (obligatorio, máximo 9 dígitos, se formatea en grupos de 3)
+- **Teléfono**: Número de teléfono (obligatorio, máximo 9 dígitos)
 
 ### Información de Identificación
 
@@ -28,13 +27,11 @@
 ### Información Bancaria
 
 - **IBAN**: Número IBAN de la cuenta bancaria (opcional)
-  - Se formatea automáticamente en grupos de 4 caracteres
-  - Máximo 24 caracteres
-  - Se convierte a mayúsculas automáticamente
   - Si se proporciona IBAN, los siguientes campos se vuelven obligatorios:
     - Referencia Cliente
     - Referencia Mandato
     - Fecha Firma Mandato
+  - Si NO se proporciona IBAN, los campos bancarios no se guardan
 
 - **Referencia Cliente**: Referencia bancaria del cliente (obligatorio si hay IBAN)
   - Se auto-rellena con el nombre del cliente al escribir el nombre
@@ -46,7 +43,6 @@
 
 - **Fecha Firma Mandato**: Fecha de firma del mandato (obligatorio si hay IBAN)
   - Formato: dd/mm/aaaa
-  - Se formatea automáticamente mientras se escribe
   - Icono de calendario 📅 visible en el campo
 
 ### Información del Sistema
@@ -61,9 +57,8 @@
 ### Header de la Página
 
 - **Título**: "Clientes" (izquierda)
-- **Botón "＋ Cliente"**: Botón verde (#cddc39) en la parte superior derecha
+- **Botón "＋ Cliente"**: Botón verde en la parte superior derecha
   - Al hacer clic: Navega a `/clients/new`
-  - Color hover: #b8c837
   - En móviles: Ocupa el ancho completo
 
 ### Búsqueda
@@ -111,7 +106,7 @@
      - Muestra "Procesando..." mientras se procesa
      - Se deshabilita durante el proceso
   2. **Botón "Editar"**:
-     - Color: Verde (#cddc39)
+     - Color: Verde
      - Al hacer clic: Navega a `/client/:clientId/edit`
 
 ### Secciones de Información
@@ -155,6 +150,9 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 
 ### Formulario
 
+**Título**: "Nuevo cliente"
+**Subtítulo**: "Creación de cliente"
+
 **Campos obligatorios** (marcados con asterisco rojo \*):
 
 1. **Cliente** (\*): Input de texto
@@ -164,7 +162,7 @@ La información se muestra en una tarjeta blanca con secciones separadas:
    - Switch con dos opciones:
      - **"Existente"**: Muestra dropdown con lista de responsables existentes
      - **"Nuevo"**: Muestra input de texto para nombre del responsable
-   - El switch activo tiene fondo verde (#cddc39)
+   - El switch activo tiene fondo verde
 
 3. **Dirección 1** (\*): Input de texto
 
@@ -173,8 +171,6 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 5. **Email** (\*): Input tipo email
 
 6. **Teléfono** (\*): Input tipo tel
-   - Se formatea automáticamente en grupos de 3 dígitos
-   - Máximo 9 dígitos
 
 7. **ID Type** (\*): Dropdown
    - Opciones: "DNI" o "Pasaporte"
@@ -182,8 +178,6 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 8. **ID Value** (\*): Input de texto
 
 9. **IBAN**: Input de texto (opcional)
-   - Se formatea automáticamente en grupos de 4 caracteres
-   - Máximo 24 caracteres
    - Si se completa, muestra los siguientes campos:
 
 10. **Referencia Cliente** (\* si hay IBAN): Input de texto (solo lectura, auto-rellenado)
@@ -192,7 +186,6 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 
 12. **Fecha Firma Mandato** (\* si hay IBAN): Input de texto con icono 📅
     - Formato: dd/mm/aaaa
-    - Se formatea automáticamente mientras se escribe
 
 ### Validaciones
 
@@ -202,17 +195,16 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 - Si hay IBAN, los campos bancarios (Referencia Cliente, Referencia Mandato, Fecha Firma Mandato) son obligatorios
 - El email debe tener formato válido
 - El teléfono debe tener máximo 9 dígitos
-- El IBAN debe tener máximo 24 caracteres
 
 **Mensajes de error**:
 
-- Se muestran en rojo (#d32f2f) dentro de un contenedor con fondo rosa claro (#ffebee)
+- Se muestran en rojo dentro de un contenedor con fondo rosa claro
 - Aparecen arriba del botón de envío
 
 ### Botón de Envío
 
 - **Texto**: "Crear Cliente" (normal) / "Creando..." (cargando)
-- **Color**: Verde (#cddc39)
+- **Color**: Verde
 - **Estado**: Se deshabilita durante el envío
 - **Acción después del éxito**:
   - Muestra mensaje verde "Cliente creado correctamente. Redirigiendo..."
@@ -234,15 +226,10 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 
 3. **Datos precargados**: Todos los campos se cargan con los datos actuales del cliente
 
-4. **Formato de datos**:
-   - Teléfono: Se formatea con espacios
-   - IBAN: Se formatea con espacios
-   - Fecha: Se convierte de formato ISO a dd/mm/yyyy
-
-5. **Botón de envío**:
+4. **Botón de envío**:
    - Texto: "Guardar Cambios" (normal) / "Guardando..." (cargando)
 
-6. **Acción después del éxito**:
+5. **Acción después del éxito**:
    - Muestra mensaje verde "Cliente editado correctamente. Redirigiendo..."
    - Redirige automáticamente a `/client/:id` después de 500ms
 
@@ -264,9 +251,7 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 
 1. Usuario hace clic en el botón
 2. El botón muestra "Procesando..." y se deshabilita
-3. Se envía petición al backend:
-   - Si está activo → `deactivateClient(clientId)`
-   - Si está inactivo → `activateClient(clientId)`
+3. Se envía petición al backend para cambiar el estado
 4. Se limpia el caché
 5. Se recarga la información del cliente
 6. El botón vuelve a su estado normal con el nuevo texto
@@ -292,12 +277,7 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 
 3. **Campos bancarios**:
    - Si se proporciona IBAN, todos los campos bancarios son obligatorios
-   - Si NO se proporciona IBAN, los campos bancarios se envían como `null`
-
-4. **Formato de datos**:
-   - Teléfono: Se eliminan espacios antes de enviar
-   - IBAN: Se eliminan espacios y se convierte a mayúsculas antes de enviar
-   - Fecha: Se envía en formato dd/mm/yyyy
+   - Si NO se proporciona IBAN, los campos bancarios no se guardan
 
 ### Reglas de Estado
 
@@ -309,7 +289,7 @@ La información se muestra en una tarjeta blanca con secciones separadas:
 2. **Edición de nombre**:
    - Por defecto, el nombre no se puede editar para evitar cambios accidentales
    - Si se edita el nombre, se actualizan automáticamente las referencias bancarias
-   - Requiere confirmación explícita del usuario
+   - Requiere confirmación explícita del usuario (botón "Editar igualmente")
 
 ### Reglas de Navegación
 

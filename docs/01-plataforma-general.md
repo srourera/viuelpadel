@@ -2,7 +2,7 @@
 
 ## Visión General
 
-La plataforma es un sistema de administración para la gestión de clientes, facturas y remesas bancarias. Está diseñada para facilitar la gestión financiera y administrativa de un negocio.
+La plataforma es un sistema de administración para gestionar clientes, facturas y remesas bancarias. Permite crear clientes, generar facturas manuales y gestionar remesas bancarias que se generan automáticamente.
 
 ## Autenticación
 
@@ -10,16 +10,14 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 
 - **Página de Login**: Se muestra automáticamente si el usuario no está autenticado
 - **Campo de entrada**: Campo de texto tipo password para "Clave de Administrador"
-- **Botón de acceso**: Botón verde (#cddc39) con texto "Acceder" que permite iniciar sesión
+- **Botón de acceso**: Botón verde con texto "Acceder" que permite iniciar sesión
 - **Validación**: Si el campo está vacío, muestra error "Por favor, ingresa la clave de administrador"
-- **Almacenamiento**: La clave se guarda en localStorage con la clave "viuelpadel_admin-key"
 
 ### Cierre de Sesión
 
 - **Ubicación**: Barra superior (TopBar), parte derecha
 - **Botón**: Botón con icono 🚪 y texto "Salir"
-- **Color**: Fondo transparente con borde gris (#e0e0e0)
-- **Acción**: Al hacer clic, limpia la clave de localStorage y redirige a la página de inicio
+- **Acción**: Al hacer clic, cierra la sesión y redirige a la página de inicio
 
 ## Estructura de Navegación
 
@@ -39,16 +37,16 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
    - Si NO es página principal: Muestra botón "← Volver" que permite navegar hacia atrás
 
 2. **Menú de Navegación** (4 opciones principales):
-   - **🏠 Inicio** (ruta: `/`)
-   - **👥 Clientes** (ruta: `/clients`)
-   - **🧾 Facturas** (ruta: `/invoices`)
-   - **💳 Remesas** (ruta: `/remittance-types`)
+   - **🏠 Inicio** (ruta: `/`) - Dashboard con estadísticas
+   - **👥 Clientes** (ruta: `/clients`) - Listado de clientes
+   - **🧾 Facturas** (ruta: `/invoices`) - Listado de facturas
+   - **💳 Remesas** (ruta: `/remittance-types`) - Listado de tipos de remesa
 
 **Estados de los elementos del menú**:
 
-- **Normal**: Fondo transparente, texto gris (#666666)
-- **Hover**: Fondo gris claro (#f5f5f5), texto negro (#292929)
-- **Activo**: Fondo gris muy claro (#f9f9f9), texto negro (#292929), borde izquierdo verde (#cddc39) de 3px, texto en negrita
+- **Normal**: Fondo transparente, texto gris
+- **Hover**: Fondo gris claro, texto negro
+- **Activo**: Fondo gris muy claro, texto negro, borde izquierdo verde de 3px, texto en negrita
 
 ### TopBar (Barra Superior)
 
@@ -91,10 +89,9 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 
 **Diseño de las tarjetas**:
 
-- Fondo blanco (#fff)
-- Borde gris (#e0e0e0)
-- Padding: 1.5rem
-- Hover: Borde verde (#cddc39), sombra, se eleva ligeramente
+- Fondo blanco
+- Borde gris
+- Hover: Borde verde, sombra, se eleva ligeramente
 
 ### Gráficos
 
@@ -112,7 +109,7 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 - Título: "Top 5 Clientes por Facturación"
 - Lista de 5 clientes ordenados por facturación descendente
 - Cada cliente muestra:
-  - Ranking (#1, #2, etc.) en color verde (#cddc39)
+  - Ranking (#1, #2, etc.) en color verde
   - Nombre del cliente (clickeable, lleva a la página del cliente)
   - Importe total facturado
   - Número de facturas
@@ -124,7 +121,7 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 
 **Aspecto visual**:
 
-- Spinner circular verde (#cddc39) con borde gris (#e0e0e0)
+- Spinner circular verde con borde gris
 - Texto debajo: "Cargando [elemento]..."
 - Centrado vertical y horizontalmente
 
@@ -132,15 +129,15 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 
 **Aspecto visual**:
 
-- Mensaje de error en color rojo (#d32f2f)
-- Botón "Reintentar" de color verde (#cddc39)
+- Mensaje de error en color rojo
+- Botón "Reintentar" de color verde
 - Centrado vertical y horizontalmente
 
 ### Estado Vacío
 
 **Aspecto visual**:
 
-- Mensaje informativo en color gris (#666666)
+- Mensaje informativo en color gris
 - Centrado vertical y horizontalmente
 
 ## Colores Principales
@@ -197,5 +194,4 @@ La plataforma es un sistema de administración para la gestión de clientes, fac
 
 - Las peticiones GET se cachean automáticamente
 - Las peticiones POST/PUT/DELETE limpian el caché automáticamente
-- El caché se puede limpiar manualmente con `ApiService.clearCache()`
-- Se limpia automáticamente después de operaciones de escritura
+- El caché se limpia automáticamente después de operaciones de escritura
