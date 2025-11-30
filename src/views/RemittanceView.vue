@@ -390,7 +390,10 @@ export default {
                 formatDate(remittance.createdAt)
               }}</span>
             </div>
-            <div v-if="remittance.validatedAt" class="detail-row">
+            <div
+              v-if="remittance.validatedAt && remittance.status === 'validated'"
+              class="detail-row"
+            >
               <span class="detail-label">Fecha de validación:</span>
               <span class="detail-value">{{
                 formatDate(remittance.validatedAt)
