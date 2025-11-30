@@ -278,7 +278,11 @@ export default {
         await this.fetchRemittanceLines();
         this.closeAddLineModal();
       } catch (err) {
-        alert("Error al añadir la línea. Por favor, intenta de nuevo.");
+        const errorMessage =
+          err instanceof Error && err.message
+            ? err.message
+            : "Error al añadir la línea. Por favor, intenta de nuevo.";
+        alert(errorMessage);
         console.error("Error adding remittance line:", err);
       } finally {
         this.addingLine = false;

@@ -200,7 +200,11 @@ export default {
         await this.fetchRemittanceTypeClients();
         this.closeAddClientModal();
       } catch (err) {
-        alert("Error al añadir el cliente. Por favor, intenta de nuevo.");
+        const errorMessage =
+          err instanceof Error && err.message
+            ? err.message
+            : "Error al añadir el cliente. Por favor, intenta de nuevo.";
+        alert(errorMessage);
         console.error("Error adding remittance type client:", err);
       } finally {
         this.addingClient = false;

@@ -1,3 +1,4 @@
+0. Asegurar que tots els clients tenen mail
 1. Executar workflow de migració
 2. Modificar URL de adminBaseUrl de https://n8n.ridaflows.com/workflow/6OUPxL4EAvH4AgPi i https://n8n.ridaflows.com/workflow/ctUrWE6mvLhDxHaj
 3. Canviar el testMode de la generació de factures de https://n8n.ridaflows.com/workflow/6OUPxL4EAvH4AgPi

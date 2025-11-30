@@ -73,10 +73,10 @@ export interface INewClientPayload {
   phone: string;
   idType: string;
   idValue: string;
-  bankClientReference: string;
-  bankMandateReference: string;
-  bankMandateSignedAt: string;
-  iban: string;
+  bankClientReference: string | null;
+  bankMandateReference: string | null;
+  bankMandateSignedAt: string | null;
+  iban: string | null;
 }
 
 export interface ICreateClientResponse {

@@ -158,12 +158,67 @@ export default {
         return;
       }
 
+      // Validar dirección 1
+      if (!this.form.address1) {
+        this.error = "Por favor, introduce la dirección 1.";
+        return;
+      }
+
+      // Validar dirección 2
+      if (!this.form.address2) {
+        this.error = "Por favor, introduce la dirección 2.";
+        return;
+      }
+
+      // Validar email
+      if (!this.form.email) {
+        this.error = "Por favor, introduce el email.";
+        return;
+      }
+
+      // Validar teléfono
+      if (!this.form.phone) {
+        this.error = "Por favor, introduce el teléfono.";
+        return;
+      }
+
+      // Validar ID Type
+      if (!this.form.idType) {
+        this.error = "Por favor, selecciona un tipo de ID.";
+        return;
+      }
+
+      // Validar ID Value
+      if (!this.form.idValue) {
+        this.error = "Por favor, introduce el valor del ID.";
+        return;
+      }
+
+      // Validar campos bancarios si IBAN está presente
+      const ibanTrimmed = (this.form.iban || "").replace(/\s/g, "");
+      if (ibanTrimmed) {
+        if (!this.form.bankClientReference) {
+          this.error = "Por favor, introduce la referencia del cliente.";
+          return;
+        }
+        if (!this.form.bankMandateReference) {
+          this.error = "Por favor, introduce la referencia del mandato.";
+          return;
+        }
+        if (!this.form.bankMandateSignedAt) {
+          this.error = "Por favor, introduce la fecha de firma del mandato.";
+          return;
+        }
+      }
+
       this.saving = true;
       this.error = "";
       this.success = false;
 
       try {
         // Preparar payload: eliminar responsibleId o responsibleName según el tipo
+        const ibanTrimmed = (this.form.iban || "").replace(/\s/g, ""); // Eliminar espacios del IBAN
+
         const payload: INewClientPayload = {
           id: this.client.id,
           name: this.form.name,
@@ -173,10 +228,17 @@ export default {
           phone: this.form.phone.replace(/\s/g, ""), // Eliminar espacios del teléfono
           idType: this.form.idType,
           idValue: this.form.idValue,
-          bankClientReference: this.form.bankClientReference,
-          bankMandateReference: this.form.bankMandateReference,
-          bankMandateSignedAt: this.form.bankMandateSignedAt, // Enviar en formato dd/mm/yyyy
-          iban: this.form.iban.replace(/\s/g, ""), // Eliminar espacios del IBAN
+          iban: ibanTrimmed || null,
+          // Solo incluir campos bancarios si IBAN no está vacío, sino enviar null
+          bankClientReference: ibanTrimmed
+            ? this.form.bankClientReference
+            : null,
+          bankMandateReference: ibanTrimmed
+            ? this.form.bankMandateReference
+            : null,
+          bankMandateSignedAt: ibanTrimmed
+            ? this.form.bankMandateSignedAt
+            : null, // Enviar en formato dd/mm/yyyy
         };
 
         // Agregar responsibleId o responsibleName según el tipo seleccionado
@@ -313,7 +375,9 @@ export default {
         </div>
 
         <div class="form-group">
-          <label for="responsable" class="form-label">Responsable</label>
+          <label for="responsable" class="form-label">
+            Responsable <span class="required">*</span>
+          </label>
           <div class="switch-container">
             <button
               type="button"
@@ -338,6 +402,7 @@ export default {
             v-model="form.responsibleId"
             class="form-input"
             :disabled="loadingResponsibles"
+            required
           >
             <option value="" disabled>Selecciona un responsable</option>
             <option
@@ -354,44 +419,56 @@ export default {
             type="text"
             class="form-input"
             placeholder="Nombre del responsable"
+            required
           />
         </div>
 
         <div class="form-group">
-          <label for="direccio1" class="form-label">Dirección 1</label>
+          <label for="direccio1" class="form-label">
+            Dirección 1 <span class="required">*</span>
+          </label>
           <input
             id="direccio1"
             v-model="form.address1"
             type="text"
             class="form-input"
             placeholder="Primera línea de dirección"
+            required
           />
         </div>
 
         <div class="form-group">
-          <label for="direccio2" class="form-label">Dirección 2</label>
+          <label for="direccio2" class="form-label">
+            Dirección 2 <span class="required">*</span>
+          </label>
           <input
             id="direccio2"
             v-model="form.address2"
             type="text"
             class="form-input"
             placeholder="Segunda línea de dirección"
+            required
           />
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">
+            Email <span class="required">*</span>
+          </label>
           <input
             id="email"
             v-model="form.email"
             type="email"
             class="form-input"
             placeholder="email@exemple.com"
+            required
           />
         </div>
 
         <div class="form-group">
-          <label for="telefon" class="form-label">Teléfono</label>
+          <label for="telefon" class="form-label">
+            Teléfono <span class="required">*</span>
+          </label>
           <input
             id="telefon"
             v-model="form.phone"
@@ -399,12 +476,20 @@ export default {
             type="tel"
             class="form-input"
             placeholder="Teléfono de contacto"
+            required
           />
         </div>
 
         <div class="form-group">
-          <label for="id-type" class="form-label">ID Type</label>
-          <select id="id-type" v-model="form.idType" class="form-input">
+          <label for="id-type" class="form-label">
+            ID Type <span class="required">*</span>
+          </label>
+          <select
+            id="id-type"
+            v-model="form.idType"
+            class="form-input"
+            required
+          >
             <option value="" disabled>Selecciona un tipo</option>
             <option value="DNI">DNI</option>
             <option value="Pasaporte">Pasaporte</option>
@@ -412,60 +497,17 @@ export default {
         </div>
 
         <div class="form-group">
-          <label for="id-value" class="form-label">ID Value</label>
+          <label for="id-value" class="form-label">
+            ID Value <span class="required">*</span>
+          </label>
           <input
             id="id-value"
             v-model="form.idValue"
             type="text"
             class="form-input"
             placeholder="Valor de la identificación"
+            required
           />
-        </div>
-
-        <div class="form-group">
-          <label for="referencia-client" class="form-label">
-            Referencia Cliente
-          </label>
-          <input
-            id="referencia-client"
-            v-model="form.bankClientReference"
-            type="text"
-            class="form-input"
-            placeholder="Referencia del cliente"
-            readonly
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="referencia-mandat" class="form-label">
-            Referencia Mandato
-          </label>
-          <input
-            id="referencia-mandat"
-            v-model="form.bankMandateReference"
-            type="text"
-            class="form-input"
-            placeholder="Referencia del mandato"
-            readonly
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="data-firma-mandat" class="form-label">
-            Fecha Firma Mandato
-          </label>
-          <div class="date-input-wrapper">
-            <input
-              id="data-firma-mandat"
-              v-model="form.bankMandateSignedAt"
-              @input="formatDateInput"
-              type="text"
-              class="form-input date-input"
-              placeholder="dd/mm/aaaa"
-              maxlength="10"
-            />
-            <span class="date-icon">📅</span>
-          </div>
         </div>
 
         <div class="form-group">
@@ -478,6 +520,55 @@ export default {
             class="form-input"
             placeholder="IBAN de la cuenta bancaria"
           />
+        </div>
+
+        <div v-if="form.iban && form.iban.trim()" class="form-group">
+          <label for="referencia-client" class="form-label">
+            Referencia Cliente <span class="required">*</span>
+          </label>
+          <input
+            id="referencia-client"
+            v-model="form.bankClientReference"
+            type="text"
+            class="form-input"
+            placeholder="Referencia del cliente"
+            readonly
+            required
+          />
+        </div>
+
+        <div v-if="form.iban && form.iban.trim()" class="form-group">
+          <label for="referencia-mandat" class="form-label">
+            Referencia Mandato <span class="required">*</span>
+          </label>
+          <input
+            id="referencia-mandat"
+            v-model="form.bankMandateReference"
+            type="text"
+            class="form-input"
+            placeholder="Referencia del mandato"
+            readonly
+            required
+          />
+        </div>
+
+        <div v-if="form.iban && form.iban.trim()" class="form-group">
+          <label for="data-firma-mandat" class="form-label">
+            Fecha Firma Mandato <span class="required">*</span>
+          </label>
+          <div class="date-input-wrapper">
+            <input
+              id="data-firma-mandat"
+              v-model="form.bankMandateSignedAt"
+              @input="formatDateInput"
+              type="text"
+              class="form-input date-input"
+              placeholder="dd/mm/aaaa"
+              maxlength="10"
+              required
+            />
+            <span class="date-icon">📅</span>
+          </div>
         </div>
 
         <div v-if="error" class="error-message">

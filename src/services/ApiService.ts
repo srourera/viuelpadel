@@ -313,7 +313,17 @@ class ApiService {
       });
       if (!response.ok) {
         if (response.status === 403) AuthService.logout();
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Intentar extraer el mensaje de error del cuerpo de la respuesta
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          // Si no se puede parsear el JSON, usar el mensaje genérico
+        }
+        throw new Error(errorMessage);
       }
       const data = await response.json();
 
