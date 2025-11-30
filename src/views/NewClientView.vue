@@ -76,16 +76,6 @@ export default {
       this.success = false;
 
       try {
-        // Convertir fecha de dd/mm/aaaa a formato ISO si está presente
-        let formattedDate = this.form.bankMandateSignedAt;
-        if (formattedDate) {
-          const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-          if (dateRegex.test(formattedDate)) {
-            const dateParts = formattedDate.split("/");
-            formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-          }
-        }
-
         // Preparar payload: eliminar responsibleId o responsibleName según el tipo
         const payload: INewClientPayload = {
           name: this.form.name,
@@ -97,7 +87,7 @@ export default {
           idValue: this.form.idValue,
           bankClientReference: this.form.bankClientReference,
           bankMandateReference: this.form.bankMandateReference,
-          bankMandateSignedAt: formattedDate,
+          bankMandateSignedAt: this.form.bankMandateSignedAt, // Enviar en formato dd/mm/yyyy
           iban: this.form.iban.replace(/\s/g, ""), // Eliminar espacios del IBAN
         };
 
