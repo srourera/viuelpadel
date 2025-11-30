@@ -11,6 +11,7 @@ import RemittanceTypesView from "@/views/RemittanceTypesView.vue";
 import RemittanceTypeView from "@/views/RemittanceTypeView.vue";
 import RemittanceTypeClientsView from "@/views/RemittanceTypeClientsView.vue";
 import RemittanceView from "@/views/RemittanceView.vue";
+import SergyView from "@/views/SergyView.vue";
 
 // Historial de rutas visitadas (stack)
 const routeHistory: string[] = [];
@@ -89,6 +90,12 @@ const router = createRouter({
       name: "remittance",
       component: RemittanceView,
       meta: { fallbackRoute: "/remittance-types" },
+    },
+    {
+      path: "/sergy",
+      name: "sergy",
+      component: SergyView,
+      meta: { isMainPage: true },
     },
   ],
 });

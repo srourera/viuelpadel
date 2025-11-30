@@ -112,6 +112,17 @@ export default {
         <span class="nav-text" v-if="!isCollapsed">Remesas</span>
       </router-link>
     </nav>
+    <div class="sidebar-footer">
+      <router-link
+        to="/sergy"
+        class="nav-item nav-item-footer"
+        active-class="active"
+        :title="isCollapsed ? 'Sergy' : ''"
+      >
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text" v-if="!isCollapsed">Sergy</span>
+      </router-link>
+    </div>
   </aside>
 </template>
 
@@ -220,6 +231,14 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  overflow-y: auto;
+}
+
+.sidebar-footer {
+  padding: 1rem 0;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fff;
+  flex-shrink: 0;
 }
 
 .nav-item {

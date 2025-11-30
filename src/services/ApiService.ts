@@ -279,6 +279,22 @@ class ApiService {
     );
   }
 
+  public async sendAgentMessage(
+    input: string,
+    sessionId: string
+  ): Promise<{ response: string }> {
+    return await this.request<{ response: string }>(
+      "/viuelpadel/agent-message",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input, sessionId }),
+      }
+    );
+  }
+
   public clearCache(): void {
     this.cache.clear();
   }
