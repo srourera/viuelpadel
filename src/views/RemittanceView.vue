@@ -36,6 +36,7 @@ export default {
         newAmount: 0,
       },
       confirming: false,
+      searchQuery: "",
     };
   },
   computed: {
@@ -50,6 +51,23 @@ export default {
       });
       return result;
     },
+    availableClients(): IClientListItem[] {
+      const existingClientIds = new Set(
+        this.remittanceLines.map((line) => line.client.id)
+      );
+      return this.clients.filter(
+        (client) => client.isActive && !existingClientIds.has(client.id)
+      );
+    },
+    filteredRemittanceLines(): IRemittanceLine[] {
+      if (!this.searchQuery.trim()) {
+        return this.remittanceLines;
+      }
+      const query = this.searchQuery.toLowerCase().trim();
+      return this.remittanceLines.filter((line) =>
+        line.client.name.toLowerCase().includes(query)
+      );
+    },
   },
   async mounted() {
     await Promise.all([this.fetchRemittance(), this.fetchRemittanceLines()]);
@@ -58,6 +76,9 @@ export default {
     getRemittanceIdFromRoute(): number {
       const routeParam = this.$route.params.remittanceId as string;
       return parseInt(routeParam, 10);
+    },
+    getClientUrl(clientId: number): string {
+      return `/client/${clientId}`;
     },
     async fetchRemittance() {
       try {
@@ -381,7 +402,15 @@ export default {
 
       <div class="remittance-lines-section">
         <div class="remittance-lines-header">
-          <h2 class="section-title">Líneas de Remesa</h2>
+          <div class="section-title-wrapper">
+            <h2 class="section-title">Líneas de Remesa</h2>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Buscar por nombre..."
+              class="search-input"
+            />
+          </div>
           <button
             v-if="remittance.status === 'pending'"
             @click="openAddLineModal"
@@ -407,6 +436,13 @@ export default {
           <p>No hay líneas de remesa disponibles.</p>
         </div>
 
+        <div
+          v-else-if="filteredRemittanceLines.length === 0"
+          class="empty-state"
+        >
+          <p>No se encontraron líneas con ese nombre.</p>
+        </div>
+
         <div v-else class="remittance-lines-table-container">
           <table class="remittance-lines-table">
             <thead>
@@ -416,10 +452,15 @@ export default {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="line in remittanceLines" :key="line.id">
+              <tr v-for="line in filteredRemittanceLines" :key="line.id">
                 <td class="client-name-cell">
                   <div class="client-name">
-                    {{ line.client.name }}
+                    <router-link
+                      :to="getClientUrl(line.client.id)"
+                      class="client-link"
+                    >
+                      {{ line.client.name }}
+                    </router-link>
                     <span v-if="!line.client.isActive" class="inactive-badge"
                       >⚪️</span
                     >
@@ -485,11 +526,13 @@ export default {
                 {{
                   loadingClients
                     ? "Cargando clientes..."
-                    : "Selecciona un cliente"
+                    : availableClients.length === 0
+                      ? "No hay clientes disponibles"
+                      : "Selecciona un cliente"
                 }}
               </option>
               <option
-                v-for="client in clients"
+                v-for="client in availableClients"
                 :key="client.id"
                 :value="client.id"
               >
@@ -540,13 +583,26 @@ export default {
     >
       <div class="modal-content modal-content-small" @click.stop>
         <div class="modal-header">
-          <h2 class="modal-title">Confirmar cambio de importe</h2>
+          <h2 class="modal-title">
+            {{
+              confirmModalData.newAmount === 0
+                ? "Eliminar línea de remesa"
+                : "Confirmar cambio de importe"
+            }}
+          </h2>
           <button @click="closeConfirmModal" class="modal-close-button">
             ×
           </button>
         </div>
         <div class="modal-body">
-          <p class="confirm-message">
+          <p class="confirm-message" v-if="confirmModalData.newAmount === 0">
+            ¿Confirmas eliminar la línea de remesa?<br />
+            <span class="confirm-message-secondary"
+              >Dejará de salir en este listado (siempre lo puedes volver a
+              añadir).</span
+            >
+          </p>
+          <p class="confirm-message" v-else>
             ¿Confirmas cambiar el importe de
             <strong>{{
               formatCurrency(confirmModalData.originalAmount)
@@ -710,6 +766,12 @@ export default {
   margin-bottom: 1.5rem;
 }
 
+.section-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .add-line-button {
   padding: 0.375rem 0.75rem;
   background-color: #cddc39;
@@ -807,6 +869,11 @@ export default {
 .confirm-message strong {
   color: #cddc39;
   font-weight: 600;
+}
+
+.confirm-message-secondary {
+  color: #999999;
+  font-size: 0.9rem;
 }
 
 .modal-form {
@@ -966,6 +1033,19 @@ export default {
   gap: 0.5rem;
 }
 
+.client-link {
+  color: #292929;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.client-link:hover {
+  color: #cddc39;
+  text-decoration: underline;
+}
+
 .inactive-badge {
   font-size: 0.875rem;
 }
@@ -1030,7 +1110,31 @@ export default {
   font-size: 1.25rem;
   font-weight: 600;
   color: #292929;
+  margin: 0;
+}
+
+.remittance-section .section-title {
   margin: 0 0 1rem 0;
+}
+
+.search-input {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: "Signika", sans-serif;
+  width: 200px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #cddc39;
+}
+
+.search-input::placeholder {
+  color: #999999;
 }
 
 .detail-row {

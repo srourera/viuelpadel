@@ -107,6 +107,12 @@ export default {
             Generada automáticamente cada día {{ remesa.generationDay }}
           </p>
         </div>
+        <router-link
+          :to="`/remittance-type/${getRemittanceTypeIdFromRoute()}/clients`"
+          class="clients-quotas-button"
+        >
+          ⚙️ Cuotas de clientes
+        </router-link>
       </div>
 
       <div class="remittances-section">
@@ -173,7 +179,8 @@ export default {
 
 .remesa-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -258,6 +265,26 @@ export default {
   width: 100%;
 }
 
+.clients-quotas-button {
+  padding: 0.625rem 1.5rem;
+  background-color: #cddc39;
+  color: #292929;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: "Signika", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.clients-quotas-button:hover {
+  background-color: #b8c837;
+}
+
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -338,6 +365,17 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .remesa-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .clients-quotas-button {
+    width: 100%;
+    text-align: center;
+  }
+
   .remittance-card-header {
     flex-direction: column;
     align-items: flex-start;

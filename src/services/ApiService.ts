@@ -18,6 +18,7 @@ import type {
   IRemittancesList,
   IRemittance,
   IRemittanceLinesList,
+  IRemittanceTypeClientsList,
 } from "@/interfaces/Remittance";
 
 class ApiService {
@@ -230,6 +231,50 @@ class ApiService {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ remittanceId, clientId, amountMinUnit }),
+      }
+    );
+  }
+
+  public async getRemittanceTypeClients(
+    remittanceTypeId: number
+  ): Promise<IRemittanceTypeClientsList> {
+    return await this.request<IRemittanceTypeClientsList>(
+      `/viuelpadel/remittance-type-clients?remittanceTypeId=${remittanceTypeId}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  public async updateRemittanceTypeClient(
+    id: number,
+    amountMinUnit: number
+  ): Promise<unknown> {
+    return await this.request<unknown>(
+      "/viuelpadel/remittance/update-remittance-type-client",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, amountMinUnit }),
+      }
+    );
+  }
+
+  public async addRemittanceTypeClient(
+    remittanceTypeId: number,
+    clientId: number,
+    amountMinUnit: number
+  ): Promise<unknown> {
+    return await this.request<unknown>(
+      "/viuelpadel/remittance/add-remittance-type-client",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ remittanceTypeId, clientId, amountMinUnit }),
       }
     );
   }

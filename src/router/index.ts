@@ -9,6 +9,7 @@ import ManualInvoiceView from "@/views/ManualInvoiceView.vue";
 import ResponsableView from "@/views/ResponsableView.vue";
 import RemittanceTypesView from "@/views/RemittanceTypesView.vue";
 import RemittanceTypeView from "@/views/RemittanceTypeView.vue";
+import RemittanceTypeClientsView from "@/views/RemittanceTypeClientsView.vue";
 import RemittanceView from "@/views/RemittanceView.vue";
 
 // Historial de rutas visitadas (stack)
@@ -75,6 +76,12 @@ const router = createRouter({
       path: "/remittance-type/:id",
       name: "remittance-type",
       component: RemittanceTypeView,
+      meta: { fallbackRoute: "/remittance-types" },
+    },
+    {
+      path: "/remittance-type/:id/clients",
+      name: "remittance-type-clients",
+      component: RemittanceTypeClientsView,
       meta: { fallbackRoute: "/remittance-types" },
     },
     {

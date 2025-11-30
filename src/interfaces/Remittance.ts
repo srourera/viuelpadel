@@ -39,3 +39,14 @@ export interface IRemittanceLine {
 export interface IRemittanceLinesList {
   remittanceLines: IRemittanceLine[];
 }
+
+export interface IRemittanceTypeClient {
+  id: number;
+  remittanceTypeId: number;
+  amountMinUnit: number;
+  client: IClientReference;
+}
+
+export interface IRemittanceTypeClientsList {
+  remittanceTypeClients: IRemittanceTypeClient[];
+}
