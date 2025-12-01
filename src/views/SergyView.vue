@@ -16,16 +16,10 @@ export default {
       inputMessage: "",
       sessionId: "",
       loading: false,
-      isSidebarCollapsed: false,
     };
   },
   mounted() {
     this.initializeChat();
-    this.checkSidebarState();
-    this.setupSidebarObserver();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.checkSidebarState);
   },
   methods: {
     generateSessionId(): string {
@@ -118,31 +112,6 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
       textarea.style.height = "auto";
       textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
     },
-    checkSidebarState() {
-      const mainContent = document.querySelector(".main-content");
-      if (mainContent) {
-        this.isSidebarCollapsed =
-          mainContent.classList.contains("sidebar-collapsed");
-      } else {
-        // Fallback: detectar por ancho de viewport
-        this.isSidebarCollapsed = window.innerWidth <= 768;
-      }
-    },
-    setupSidebarObserver() {
-      // Observar cambios en el main-content para detectar cuando el sidebar se colapsa
-      const mainContent = document.querySelector(".main-content");
-      if (mainContent) {
-        const observer = new MutationObserver(() => {
-          this.checkSidebarState();
-        });
-        observer.observe(mainContent, {
-          attributes: true,
-          attributeFilter: ["class"],
-        });
-      }
-      // También observar cambios de tamaño de ventana
-      window.addEventListener("resize", this.checkSidebarState);
-    },
   },
   watch: {
     messages: {
@@ -192,10 +161,7 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
       </div>
     </div>
 
-    <div
-      class="chat-input-container"
-      :style="{ left: isSidebarCollapsed ? '60px' : '200px' }"
-    >
+    <div class="chat-input-container">
       <div class="chat-input-wrapper">
         <textarea
           v-model="inputMessage"
@@ -221,8 +187,9 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
 
 <style scoped>
 .sergy-view {
-  width: 100%;
-  max-width: 100%;
+  margin: -2rem;
+  width: calc(100% + 4rem);
+  max-width: calc(100% + 4rem);
   height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
@@ -230,17 +197,27 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
   box-sizing: border-box;
   background-color: #f9f9f9;
   position: relative;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  .sergy-view {
+    margin: -1rem;
+    width: calc(100% + 2rem);
+    max-width: calc(100% + 2rem);
+  }
 }
 
 .chat-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 2rem;
   padding-bottom: 120px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   scroll-behavior: smooth;
+  min-height: 0;
 }
 
 .message {
@@ -365,21 +342,14 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
 }
 
 .chat-input-container {
-  position: fixed;
+  position: absolute;
   bottom: 0;
+  left: 0;
   right: 0;
   padding: 1.5rem 2rem;
   background-color: #fff;
   border-top: 1px solid #e0e0e0;
   z-index: 10;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  transition: left 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  .chat-input-container {
-    left: 60px !important;
-  }
 }
 
 .chat-input-wrapper {
@@ -462,7 +432,12 @@ Estoy aquí para ayudarte con tus consultas sobre el Admin de Viu el Pàdel, pre
 
   .chat-input-container {
     padding: 1rem;
-    left: 60px;
   }
+}
+</style>
+
+<style>
+.pwa-mode .sergy-view {
+  height: calc(100vh - 70px - 60px - env(safe-area-inset-bottom));
 }
 </style>

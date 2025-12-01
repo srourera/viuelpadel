@@ -123,5 +123,6 @@ body {
 .pwa-mode .main-content {
   margin-left: 0;
   margin-bottom: calc(60px + env(safe-area-inset-bottom));
+  min-height: calc(100vh - 70px - 60px - env(safe-area-inset-bottom));
 }
 </style>
