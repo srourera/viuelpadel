@@ -5,6 +5,7 @@ import AdminLoading from "./components/AdminLoading.vue";
 import Sidebar from "./components/Sidebar.vue";
 import TopBar from "./components/TopBar.vue";
 import AuthService from "./services/AuthService";
+import PWAService from "./services/PWAService";
 
 export default {
   name: "App",
@@ -20,6 +21,7 @@ export default {
       loadingAuth: true,
       isAuthenticated: false,
       isSidebarCollapsed: false,
+      pwaMode: PWAService.isStandalone(),
     };
   },
   async mounted() {
@@ -54,8 +56,8 @@ export default {
     </template>
     <template v-else>
       <AdminLogin v-if="!isAuthenticated" />
-      <div v-else class="app-layout">
-        <Sidebar :is-collapsed="isSidebarCollapsed" />
+      <div v-else class="app-layout" :class="{ 'pwa-mode': pwaMode }">
+        <Sidebar :is-collapsed="isSidebarCollapsed" :pwa-mode="pwaMode" />
         <TopBar :is-sidebar-collapsed="isSidebarCollapsed" />
         <main
           class="main-content"
@@ -116,5 +118,10 @@ body {
   .main-content.sidebar-collapsed {
     margin-left: 60px;
   }
+}
+
+.pwa-mode .main-content {
+  margin-left: 0;
+  margin-bottom: calc(60px + env(safe-area-inset-bottom));
 }
 </style>

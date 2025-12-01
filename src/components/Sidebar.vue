@@ -10,6 +10,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    pwaMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup() {
     const router = useRouter();
@@ -53,7 +57,10 @@ export default {
 </script>
 
 <template>
-  <aside class="sidebar" :class="{ collapsed: isCollapsed }">
+  <aside
+    class="sidebar"
+    :class="{ collapsed: isCollapsed, 'pwa-mode': pwaMode }"
+  >
     <div class="sidebar-header">
       <!-- Logo: solo se muestra si es página principal -->
       <img
@@ -111,8 +118,18 @@ export default {
         <span class="nav-icon">💳</span>
         <span class="nav-text" v-if="!isCollapsed">Remesas</span>
       </router-link>
+      <router-link
+        v-if="pwaMode"
+        to="/sergy"
+        class="nav-item"
+        active-class="active"
+        :title="isCollapsed ? 'Sergy' : ''"
+      >
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text" v-if="!isCollapsed">Sergy</span>
+      </router-link>
     </nav>
-    <div class="sidebar-footer">
+    <div v-if="!pwaMode" class="sidebar-footer">
       <router-link
         to="/sergy"
         class="nav-item nav-item-footer"
@@ -140,6 +157,10 @@ export default {
   z-index: 100;
   font-family: "Signika", sans-serif;
   transition: width 0.3s ease;
+}
+
+.sidebar.pwa-mode {
+  height: auto;
 }
 
 .sidebar.collapsed {
@@ -338,5 +359,29 @@ export default {
   .sidebar:not(.collapsed) .nav-text {
     display: block;
   }
+}
+
+.sidebar.pwa-mode {
+  border-right: none;
+}
+.sidebar.pwa-mode .sidebar-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(60px + env(safe-area-inset-bottom));
+  background: white;
+  flex-direction: row;
+  justify-content: space-around;
+  border-top: 1px solid #e0e0e0;
+  padding: 2px;
+  padding-bottom: calc(2px + env(safe-area-inset-bottom));
+}
+.sidebar.pwa-mode .sidebar-nav .nav-item {
+  border-left: none;
+  border-bottom: 3px solid transparent;
+}
+.sidebar.pwa-mode .sidebar-nav .nav-item.active {
+  border-bottom-color: #cddc39;
 }
 </style>
