@@ -22,7 +22,6 @@ export default {
     return {
       invoices: [] as IInvoice[],
       clients: [] as IClientListItem[],
-      lastInvoiceNumber: null as number | null,
       loading: true,
       error: "",
     };
@@ -140,16 +139,13 @@ export default {
         this.loading = true;
         this.error = "";
 
-        const [invoicesResponse, clientsResponse, lastInvoiceResponse] =
-          await Promise.all([
-            ApiService.getInvoices(),
-            ApiService.getClients(),
-            ApiService.getLastInvoiceNumber(),
-          ]);
+        const [invoicesResponse, clientsResponse] = await Promise.all([
+          ApiService.getInvoices(),
+          ApiService.getClients(),
+        ]);
 
         this.invoices = invoicesResponse.invoices;
         this.clients = clientsResponse.clients;
-        this.lastInvoiceNumber = lastInvoiceResponse.lastInvoiceNumber;
       } catch (err) {
         this.error = "Error al cargar los datos. Por favor, intenta de nuevo.";
         console.error("Error fetching dashboard data:", err);
@@ -233,6 +229,14 @@ export default {
         </div>
 
         <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ currentMonthInvoices }}</div>
+            <div class="stat-label">Facturas Mes Actual</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
           <div class="stat-icon">💰</div>
           <div class="stat-content">
             <div class="stat-value">
@@ -249,22 +253,6 @@ export default {
               {{ formatCurrency(currentYearRevenue) }}
             </div>
             <div class="stat-label">Facturación Año Actual</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📄</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ currentMonthInvoices }}</div>
-            <div class="stat-label">Facturas Mes Actual</div>
-          </div>
-        </div>
-
-        <div class="stat-card" v-if="lastInvoiceNumber">
-          <div class="stat-icon">🔢</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ lastInvoiceNumber }}</div>
-            <div class="stat-label">Último Número Factura</div>
           </div>
         </div>
       </div>
@@ -412,7 +400,7 @@ export default {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem;
 }
 
@@ -581,12 +569,12 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .stats-grid {
+  .charts-grid {
     grid-template-columns: 1fr;
   }
 
-  .charts-grid {
-    grid-template-columns: 1fr;
+  .stats-grid {
+    gap: 0.75rem;
   }
 
   .stat-card {
@@ -596,6 +584,17 @@ export default {
 
   .client-row {
     flex-wrap: wrap;
+  }
+}
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .stat-card {
+    flex-direction: row;
+    text-align: center;
+    padding: 1rem;
   }
 }
 </style>

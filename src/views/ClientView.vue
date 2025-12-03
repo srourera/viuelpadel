@@ -78,7 +78,8 @@ export default {
         ApiService.clearCache();
         await this.fetchClient();
       } catch (err) {
-        this.error = "Error al cambiar el estado del cliente. Por favor, intenta de nuevo.";
+        this.error =
+          "Error al cambiar el estado del cliente. Por favor, intenta de nuevo.";
         console.error("Error toggling client status:", err);
       } finally {
         this.togglingStatus = false;
@@ -192,8 +193,9 @@ export default {
             <span class="detail-value">
               <a
                 v-if="client.phone"
-                :href="`tel:${client.phone}`"
+                :href="`https://wa.me/${client.phone}`"
                 class="contact-link"
+                target="_blank"
               >
                 {{ client.phone }}
               </a>

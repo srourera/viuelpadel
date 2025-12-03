@@ -105,9 +105,9 @@ export default {
           <tr>
             <th>Cliente</th>
             <th>Responsable</th>
-            <th>Dirección</th>
-            <th>Email</th>
             <th>Teléfono</th>
+            <th>Email</th>
+            <th>Dirección</th>
             <th class="centered-column">Activo</th>
           </tr>
         </thead>
@@ -118,7 +118,7 @@ export default {
                 {{ client.name }}
               </router-link>
             </td>
-            <td>
+            <td class="responsable-column">
               <router-link
                 v-if="client.responsible?.name"
                 :to="getResponsableUrl(client.responsible.id)"
@@ -129,14 +129,15 @@ export default {
               <span v-else class="no-data">-</span>
             </td>
             <td>
-              <div class="address">
-                <div v-if="client.address1">
-                  {{ client.address1 }}
-                </div>
-                <div v-if="client.address2">
-                  {{ client.address2 }}
-                </div>
-              </div>
+              <a
+                v-if="client.phone"
+                :href="`https://wa.me/${client.phone}`"
+                class="phone-link"
+                target="_blank"
+              >
+                {{ client.phone }}
+              </a>
+              <span v-else class="no-data">-</span>
             </td>
             <td>
               <a
@@ -148,15 +149,15 @@ export default {
               </a>
               <span v-else class="no-data">-</span>
             </td>
-            <td>
-              <a
-                v-if="client.phone"
-                :href="`tel:${client.phone}`"
-                class="phone-link"
-              >
-                {{ client.phone }}
-              </a>
-              <span v-else class="no-data">-</span>
+            <td class="address-column">
+              <div class="address">
+                <div v-if="client.address1">
+                  {{ client.address1 }}
+                </div>
+                <div v-if="client.address2">
+                  {{ client.address2 }}
+                </div>
+              </div>
             </td>
             <td class="centered-column">
               <span class="active-status">
@@ -336,10 +337,14 @@ export default {
 }
 
 .clients-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #f0f0f0;
   color: #666666;
   font-size: 0.95rem;
+}
+.clients-table td.address-column {
+  min-width: 200px;
+  font-size: 10px;
 }
 
 .clients-table tbody tr:hover {
@@ -352,9 +357,13 @@ export default {
 
 .client-name {
   font-weight: 600;
+  font-size: 14px !important;
   color: #292929;
 }
 
+.responsable-column {
+  font-size: 14px !important;
+}
 .client-link {
   color: #292929;
   text-decoration: none;

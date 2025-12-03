@@ -621,6 +621,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 100%;
+  flex: 1;
 }
 
 .section-title {
@@ -648,6 +650,32 @@ export default {
 
 .search-input::placeholder {
   color: #999999;
+}
+
+@media (max-width: 580px) {
+  .remittance-type-clients-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .remittance-type-clients-header .section-title-wrapper input {
+    flex: 1;
+    width: unset;
+  }
+  .remittance-type-clients-header button {
+    width: 100%;
+  }
+}
+@media (max-width: 380px) {
+  .remittance-type-clients-header .section-title-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .remittance-type-clients-header .section-title-wrapper input {
+    flex: 1;
+    width: 100%;
+  }
 }
 
 .add-client-button {
@@ -725,7 +753,7 @@ export default {
 }
 
 .client-name {
-  font-size: 1rem;
+  font-size: 14px;
   color: #292929;
   display: flex;
   align-items: center;

@@ -295,7 +295,7 @@ export default {
             <td class="invoice-number">
               {{ invoice.invoiceNumber }}
             </td>
-            <td>{{ invoice.type }}</td>
+            <td class="invoice-type">{{ invoice.type }}</td>
             <td class="client-name">
               <router-link
                 :to="getClientUrl(invoice.client.id)"
@@ -314,7 +314,7 @@ export default {
             <td>
               {{ new Date(invoice.createdAt).toLocaleDateString("es-ES") }}
             </td>
-            <td>
+            <td class="invoice-link-column">
               <a
                 v-if="invoice.link"
                 :href="invoice.link"
@@ -513,7 +513,7 @@ export default {
 }
 
 .invoices-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #f0f0f0;
   color: #666666;
   font-size: 0.95rem;
@@ -532,6 +532,11 @@ export default {
   color: #292929;
 }
 
+.invoice-type {
+  font-size: 12px !important;
+  min-width: 120px;
+}
+
 .invoice-description {
   max-width: 300px;
   overflow: hidden;
@@ -544,8 +549,13 @@ export default {
   color: #292929;
 }
 
+.invoice-link-column {
+  min-width: 120px;
+}
+
 .client-name {
   font-weight: 600;
+  font-size: 14px !important;
   color: #292929;
 }
 

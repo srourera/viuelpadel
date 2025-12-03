@@ -839,6 +839,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 100%;
+  flex: 1;
 }
 
 .add-line-button {
@@ -857,6 +859,32 @@ export default {
 
 .add-line-button:hover {
   background-color: #b8c837;
+}
+
+@media (max-width: 580px) {
+  .remittance-lines-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .remittance-lines-header .section-title-wrapper input {
+    flex: 1;
+    width: unset;
+  }
+  .remittance-lines-header button {
+    width: 100%;
+  }
+}
+@media (max-width: 428px) {
+  .remittance-lines-header .section-title-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .remittance-lines-header .section-title-wrapper input {
+    flex: 1;
+    width: 100%;
+  }
 }
 
 /* Modal styles */
@@ -1095,7 +1123,7 @@ export default {
 }
 
 .client-name {
-  font-size: 1rem;
+  font-size: 14px;
   color: #292929;
   display: flex;
   align-items: center;
